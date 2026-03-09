@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="FOCAL"/>
+<meta name="theme-color" content="#05050F"/>
+<title>FOCAL — ADHD OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#05050F;--card:#0C0C1C;--border:#16162A;--border2:#22223A;
+  --text:#E8E8F4;--muted:#50506A;
+  --amber:#F5A623;--blue:#4FC3F7;--green:#66BB6A;
+  --red:#EF5350;--purple:#AB47BC;--orange:#FF7043;--pink:#F472B6;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;height:100%;overflow:hidden;}
+#app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
+#screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+#screen::-webkit-scrollbar{display:none;}
+
+/* NAV */
+#nav{position:fixed;bottom:0;left:0;right:0;background:rgba(5,5,15,0.97);border-top:1px solid var(--border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;justify-content:space-around;padding:6px 0 max(8px,env(safe-area-inset-bottom));z-index:100;}
+.nav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;border-radius:12px;color:var(--muted);font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.04em;transition:color 0.15s;}
+.nav-btn.active{color:var(--text);}
+.nav-icon{font-size:20px;line-height:1;}
+
+/* CARDS & UTILS */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;color:var(--muted);}
+.page{padding:20px 16px 8px;animation:fadeIn 0.25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{padding:13px 24px;border-radius:13px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;transition:all 0.15s;width:100%;}
+.btn:active{transform:scale(0.97);}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted);padding:10px 18px;border-radius:11px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.06em;}
+
+/* INPUTS */
+.input{background:#090916;border:1.5px solid var(--border);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;padding:13px 14px;border-radius:13px;width:100%;outline:none;}
+.input:focus{border-color:#3030AA;}
+.textarea{background:#090916;border:1.5px solid var(--border);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;padding:13px 14px;border-radius:13px;width:100%;outline:none;resize:none;line-height:1.7;}
+.textarea:focus{border-color:#3030AA;}
+
+/* HABIT ROW */
+.habit-row{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--card);border:1.5px solid var(--border);cursor:pointer;transition:all 0.12s;-webkit-user-select:none;}
+.habit-row:active{transform:scale(0.99);}
+.habit-row.done{background:#0A1A0A;border-color:#16261A;}
+.check-btn{width:48px;height:48px;border-radius:13px;border:2px solid var(--border);background:#090916;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:all 0.15s;flex-shrink:0;}
+.check-btn.checked{border-color:transparent;transform:scale(1.05);}
+.check-btn.pop{animation:popA 0.4s cubic-bezier(0.36,0.07,0.19,0.97);}
+@keyframes popA{0%{transform:scale(1)}40%{transform:scale(1.4)}70%{transform:scale(0.92)}100%{transform:scale(1.05)}}
+
+/* EMOTION GRID */
+.em-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:13px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;transition:all 0.12s;}
+.em-btn:active{transform:scale(0.95);}
+.em-btn.sel{transform:scale(1.06);}
+
+/* PROGRESS */
+.ring-track{fill:none;stroke:#16162A;stroke-width:5;}
+.ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 0.6s ease,stroke 0.4s ease;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.9);display:flex;align-items:flex-end;justify-content:center;padding:16px;animation:fadeIn 0.2s;}
+.modal{background:#0F0F1E;border:1.5px solid #20203A;border-radius:24px 24px 18px 18px;padding:26px 20px;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;}
+
+/* WEEK STRIP */
+.week-day{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.week-dot{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+
+/* TIMER */
+.timer-ring{transform:rotate(-90deg);transform-origin:50% 50%;}
+.timer-dash{transition:stroke-dashoffset 0.8s linear,stroke 0.4s ease;}
+
+/* TOGGLE */
+.toggle{width:48px;height:27px;border-radius:14px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.toggle-knob{position:absolute;top:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:left 0.2s;}
+
+/* TABS */
+.tab-pills{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.tab-pills::-webkit-scrollbar{display:none;}
+.tab-pill{background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;color:var(--muted);padding:7px 14px;border-radius:20px;transition:all 0.15s;white-space:nowrap;font-weight:500;}
+.tab-pill.active{background:#16162A;color:var(--text);}
+
+.insight-body{font-size:13px;color:var(--muted);line-height:1.8;margin-top:12px;}
+.prog-bar{height:4px;border-radius:2px;background:#16162A;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;transition:width 0.5s ease;}
+.understand-card{padding:16px;border-radius:14px;border-left:3px solid;cursor:pointer;}
+.understand-card .body{font-size:13px;color:var(--muted);line-height:1.75;margin-top:12px;display:none;}
+.understand-card.open .body{display:block;animation:fadeIn 0.2s ease;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen"></div>
+  <nav id="nav">
+    <button class="nav-btn active" data-screen="hq" onclick="navigate('hq')">
+      <span class="nav-icon">⌂</span><span>HQ</span>
+    </button>
+    <button class="nav-btn" data-screen="focus" onclick="navigate('focus')">
+      <span class="nav-icon">◎</span><span>Focus</span>
+    </button>
+    <button class="nav-btn" data-screen="regulate" onclick="navigate('regulate')">
+      <span class="nav-icon">♡</span><span>Regulate</span>
+    </button>
+    <button class="nav-btn" data-screen="habits" onclick="navigate('habits')">
+      <span class="nav-icon">✦</span><span>Habits</span>
+    </button>
+    <button class="nav-btn" data-screen="wisdom" onclick="navigate('wisdom')">
+      <span class="nav-icon">◈</span><span>Wisdom</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const KEY = "focal_v3";
+let S = {
+  habitData: {}, checkins: {}, oneFocus: {},
+  journalEntries: {}, insightIdx: 0, totalWins: 0,
+  timerMode: "sprint", bodyDouble: false,
+};
+function load(){ try{ const d=localStorage.getItem(KEY); if(d) S={...S,...JSON.parse(d)}; }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+load();
+
+const todayKey = () => new Date().toISOString().slice(0,10);
+const TODAY = todayKey();
+let currentScreen = "hq";
+let timerInterval = null, timerLeft = null, timerTotal = 0, timerPhase = "idle";
+let breathInterval = null, breathPhase = "idle", breathCount = 0, breathSec = 0;
+let celebTimeout = null;
+
+function td(){ return S.habitData[TODAY] || {}; }
+function ci(){ return S.checkins[TODAY] || {}; }
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+const HABITS = [
+  {id:"exercise",label:"Move your body",emoji:"🏃",anchor:"morning",tiny:"Even 5 min walk — it's neurological medicine",cat:"health"},
+  {id:"water_am",label:"Drink water first",emoji:"💧",anchor:"morning",tiny:"Before coffee. One full glass.",cat:"health"},
+  {id:"noscreen",label:"No phone for 30min",emoji:"📵",anchor:"morning",tiny:"Phone face-down until after breakfast",cat:"dopamine"},
+  {id:"protein",label:"Protein in breakfast",emoji:"🥚",anchor:"morning",tiny:"Eggs, nuts, yogurt — dopamine precursor",cat:"health"},
+  {id:"one_thing",label:"Name your ONE thing",emoji:"🎯",anchor:"morning",tiny:"The single task that makes today a win",cat:"focus"},
+  {id:"deepwork",label:"Deep work block",emoji:"🧱",anchor:"afternoon",tiny:"25 min, one task, phone in another room",cat:"focus"},
+  {id:"journal",label:"Brain dump",emoji:"📓",anchor:"afternoon",tiny:"3 sentences. What's in your head right now?",cat:"mindfulness"},
+  {id:"urge_pause",label:"Paused before dopamine hit",emoji:"⚡",anchor:"afternoon",tiny:"Notice urge. Wait 60 sec before acting.",cat:"dopamine"},
+  {id:"reflect",label:"3-win evening reflection",emoji:"🌙",anchor:"evening",tiny:"Name 3 things that went okay today",cat:"mindfulness"},
+  {id:"sleep_prep",label:"Sleep wind-down ritual",emoji:"😴",anchor:"evening",tiny:"No screens 30 min before bed",cat:"health"},
+];
+const CAT_COLOR = {health:"#66BB6A",focus:"#4FC3F7",dopamine:"#F472B6",mindfulness:"#F5A623"};
+const ANCHORS = {morning:{label:"Morning",emoji:"🌅",desc:"After waking / After coffee"},afternoon:{label:"Afternoon",emoji:"☀️",desc:"After lunch / After sitting at desk"},evening:{label:"Evening",emoji:"🌙",desc:"After dinner / Before bed"}};
+const EMOTIONS = [
+  {id:"wired",l:"Wired",e:"⚡",c:"#F5A623",tip:"Peak window — start your hardest task NOW."},
+  {id:"energized",l:"Energized",e:"🔥",c:"#66BB6A",tip:"Ride this wave. Stack deep work here."},
+  {id:"calm",l:"Calm",e:"🌊",c:"#4FC3F7",tip:"Use this for planning and connecting."},
+  {id:"foggy",l:"Foggy",e:"🌫️",c:"#90A4AE",tip:"10 min walk first. Then return to work."},
+  {id:"anxious",l:"Anxious",e:"😰",c:"#FFCA28",tip:"Breathe out longer than in. Name 3 things you can touch."},
+  {id:"overwhelmed",l:"Overwhelmed",e:"🌀",c:"#EF5350",tip:"One thing only. Do the 2-min version. Delete the rest."},
+  {id:"frustrated",l:"Frustrated",e:"😤",c:"#FF7043",tip:"Move for 5 min. Don't push through frustration."},
+  {id:"low",l:"Low",e:"😶",c:"#78909C",tip:"Try: bright light, cold water, protein, 5 min cardio."},
+  {id:"avoidant",l:"Avoidant",e:"🪨",c:"#8D6E63",tip:"Name what you're avoiding out loud. Then: 2 minutes only."},
+  {id:"sad",l:"Sad",e:"💙",c:"#5C6BC0",tip:"Be gentle today. One small kind act for yourself is enough."},
+];
+const URGES = [
+  {id:"phone",l:"Phone / Social media",e:"📱",need:"Connection / Novelty",redirect:"Your brain craves connection or novelty. Text one real person something genuine. Or take 5 deep breaths and ask: what was I actually doing before this urge?"},
+  {id:"food",l:"Snacking / Food",e:"🍕",need:"Comfort / Emotion",redirect:"Drink a full glass of water first. Wait 5 minutes. Ask yourself: am I physically hungry, or am I trying to soothe something? Name the emotion."},
+  {id:"gaming",l:"Gaming / Apps",e:"🎮",need:"Achievement / Escape",redirect:"What are you escaping from right now? Name it. Set a timer for 5 minutes and do the thing you're avoiding. Just 5 minutes."},
+  {id:"watching",l:"Binge watching",e:"📺",need:"Escape / Numbing",redirect:"What feels too hard to face right now? You don't have to solve it — just write its name. Naming the monster makes it smaller."},
+  {id:"shopping",l:"Shopping / Browsing",e:"🛍️",need:"Novelty / Control",redirect:"Add it to a wishlist. Give it 48 hours. The dopamine hit from buying lasts minutes — the regret lasts longer."},
+  {id:"other",l:"Something else",e:"⚡",need:"Unknown",redirect:"Set a 90-second timer. Breathe. Ask: what need is this serving? Connection? Escape? Comfort? Naming the need is the first step to meeting it differently."},
+];
+const INSIGHTS = [
+  {a:"Dr. Russell Barkley",t:"barkley",c:"#4FC3F7",q:"ADHD is not a problem of knowing what to do. It is a problem of doing what you know.",ctx:"This is why advice and YouTube videos alone don't fix ADHD. Your brain knows what to do. The gap is in doing it at the moment it's needed. You don't need more information. You need external systems at the point of performance."},
+  {a:"Dr. Russell Barkley",t:"barkley",c:"#4FC3F7",q:"Everything is either NOW or NOT NOW. The ADHD brain is time-blind.",ctx:"Future-you doesn't feel real. That's why deadlines only activate you at the last second. The fix: manufacture urgency artificially, before the crisis. Timers. Visible clocks. Deadlines you set yourself."},
+  {a:"Dr. Russell Barkley",t:"barkley",c:"#4FC3F7",q:"Exercise is the single most powerful tool you have for your ADHD brain. Treat it like medication.",ctx:"20-30 minutes of cardio produces the same neurochemical effect as a dose of stimulant medication. It is not a bonus. It is not a luxury. It is medicine. Schedule it like a pill."},
+  {a:"Dr. Russell Barkley",t:"barkley",c:"#4FC3F7",q:"You cannot use your ADHD brain to manage your ADHD brain. You need external scaffolding.",ctx:"Mental notes fail. Intentions fade. Memory leaks. The solution is radical externalization: write everything down, make it visible, put it in your environment. Out of sight is literally out of existence."},
+  {a:"Dr. Gabor Maté",t:"mate",c:"#F5A623",q:"The ADHD brain is not diseased. It is a brain that adapted to protect itself.",ctx:"ADHD often begins as an adaptation — a mind that learned to scatter itself to avoid being fully present in an environment that felt unsafe. Understanding this replaces self-blame with compassion. Your brain was protecting you."},
+  {a:"Dr. Gabor Maté",t:"mate",c:"#F5A623",q:"Behind every compulsive behavior is pain. Dopamine-seeking is self-medication, not weakness.",ctx:"When you reach for your phone or food, ask: what pain am I trying to soothe? What unmet need is beneath this urge? This was a coping mechanism that once served you. Now you can choose differently."},
+  {a:"Dr. Gabor Maté",t:"mate",c:"#F5A623",q:"Shame is the most destructive force for someone with ADHD. Self-compassion is neurological medicine.",ctx:"Shame shuts down the prefrontal cortex — exactly the region ADHD already struggles with. Every time you treat yourself with compassion instead of criticism, you literally open your brain back up."},
+  {a:"Dr. Gabor Maté",t:"mate",c:"#F5A623",q:"You are not too much. You are not broken. Your gifts haven't found the right container yet.",ctx:"Intensity, curiosity, emotional depth, creativity — these are not defects. They are features in the wrong environment. Your work is not to become a different person. It is to build the right container for who you already are."},
+  {a:"Dr. Ned Hallowell",t:"hallowell",c:"#66BB6A",q:"ADHD is a Ferrari engine with bicycle brakes. The power is extraordinary — learn to drive it.",ctx:"The hyperfocus, the intensity, the creativity — these are your Ferrari. The structures and systems you build are your brakes. You don't need a new engine. You need better brakes, and someone to teach you the track."},
+  {a:"Dr. Ned Hallowell",t:"hallowell",c:"#66BB6A",q:"Connection is medicine. Never underestimate the power of being truly understood.",ctx:"Body doubling works. Accountability partners work. Therapy works. Not because ADHD is social — but because the human nervous system regulates itself through connection. You were never meant to manage this alone."},
+  {a:"Dr. William Dodson",t:"dodson",c:"#AB47BC",q:"Rejection Sensitive Dysphoria affects 99% of people with ADHD. The pain is neurological, not weakness.",ctx:"When criticism or rejection hits you like a physical blow — that's RSD. Your nervous system fires in a way neurotypical brains simply don't. Naming it as RSD gives you the power to respond rather than react."},
+];
+const JOURNAL_PROMPTS = [
+  "What's one thing that made today harder than it needed to be? What could change?",
+  "What are you avoiding right now? Say it honestly — no judgment.",
+  "When did you feel most like yourself today? What were you doing?",
+  "What would you tell a close friend with ADHD who had the exact same day you had?",
+  "What's one thing your brain did well today, even if it felt small?",
+  "What triggered your hardest moment today? Can you trace it back to a need?",
+  "If tomorrow could be 10% better than today, what would that one change be?",
+  "Where did you feel shame today? Was it deserved, or was it ADHD talking?",
+];
+const STUCK_TIPS = [
+  "Change your physical position — stand, sit on floor, move to another spot",
+  "Read just the first sentence of the task out loud",
+  "Tell yourself: 'I only have to work for 2 minutes'",
+  "Is this the wrong task right now? Your energy might need a different gear",
+  "Write down exactly what is blocking you — naming it breaks the loop",
+];
+const BREAK_MOVES = [
+  "Do 20 jumping jacks 🏃","Drink a full glass of water 💧","Step outside for 60 seconds 🌿",
+  "Do 10 pushups ⚡","Stretch your arms overhead × 10 🙆","Walk to another room and back 👟",
+];
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+function navigate(screen){
+  currentScreen = screen;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.screen===screen));
+  render();
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function getStreak(id){
+  let streak=0, d=new Date();
+  while(true){
+    const k=d.toISOString().slice(0,10);
+    if((S.habitData[k]||{})[id]){ streak++; d.setDate(d.getDate()-1); } else break;
+    if(streak>365) break;
+  }
+  return streak;
+}
+function getWeekDates(){
+  const today=new Date(), day=today.getDay();
+  return Array.from({length:7},(_,i)=>{ const d=new Date(today); d.setDate(today.getDate()-day+i); return d.toISOString().slice(0,10); });
+}
+const WEEK_DAYS=["S","M","T","W","T","F","S"];
+function weekDates(){ return getWeekDates(); }
+
+function toggleHabit(id){
+  const was = !!(S.habitData[TODAY]||{})[id];
+  S.habitData[TODAY] = S.habitData[TODAY]||{};
+  S.habitData[TODAY][id] = !was;
+  if(!was) S.totalWins = (S.totalWins||0)+1;
+  save();
+  // pop animation
+  const btn = document.querySelector(`[data-habit="${id}"] .check-btn`);
+  if(btn && !was){ btn.classList.add('pop'); clearTimeout(celebTimeout); celebTimeout=setTimeout(()=>btn.classList.remove('pop'),600); }
+  // re-render just the habit row
+  const row = document.querySelector(`[data-habit="${id}"]`);
+  if(row){ const done=S.habitData[TODAY][id]; row.className=`habit-row${done?" done":""}`; const cb=row.querySelector('.check-btn'); if(cb){ cb.className=`check-btn${done?" checked":""}`; cb.textContent=done?"✓":HABITS.find(h=>h.id===id)?.emoji||"•"; } }
+  // update counter
+  updateHabitCount();
+}
+function updateHabitCount(){
+  const done=HABITS.filter(h=>td()[h.id]).length;
+  const total=HABITS.length;
+  const pct=Math.round(done/total*100);
+  const ring=document.getElementById('ring-fill');
+  const label=document.getElementById('ring-label');
+  if(ring){ const C=2*Math.PI*24; ring.setAttribute('stroke-dashoffset',C*(1-pct/100)); ring.setAttribute('stroke',pct===100?'#66BB6A':'#F5A623'); }
+  if(label) label.textContent=`${done}/${total}`;
+  const badge=document.getElementById('habit-badge');
+  if(badge){ badge.textContent=done; badge.style.display=done>0?'flex':'none'; }
+}
+
+// ── TIMER ──────────────────────────────────────────────────────────────────
+const TIMER_MODES = {micro:{label:"Micro",mins:10},sprint:{label:"Sprint",mins:25},turbo:{label:"Turbo",mins:50}};
+function startTimer(){
+  const mins = TIMER_MODES[S.timerMode]?.mins||25;
+  timerTotal = mins*60; timerLeft = timerTotal; timerPhase="working";
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timerLeft--;
+    if(timerLeft<=0){ clearInterval(timerInterval); timerPhase="break"; renderFocusTimer(); return; }
+    renderFocusTimer();
+  },1000);
+  renderFocusTimer();
+}
+function pauseTimer(){ clearInterval(timerInterval); timerPhase="paused"; renderFocusTimer(); }
+function resumeTimer(){
+  timerPhase="working";
+  timerInterval=setInterval(()=>{ timerLeft--; if(timerLeft<=0){clearInterval(timerInterval);timerPhase="break";} renderFocusTimer(); },1000);
+  renderFocusTimer();
+}
+function resetTimer(){ clearInterval(timerInterval); timerLeft=null; timerPhase="idle"; renderFocusTimer(); }
+function renderFocusTimer(){
+  const el=document.getElementById('timer-display');
+  if(!el) return;
+  const left=timerLeft??timerTotal;
+  const elapsed=timerTotal-left;
+  const pct=timerTotal>0?elapsed/timerTotal:0;
+  const C=2*Math.PI*80;
+  const mins=Math.floor(left/60), secs=left%60;
+  const color=timerPhase==="break"?"#66BB6A":timerPhase==="working"?"#F5A623":"#333";
+  const label=timerPhase==="idle"?"READY":timerPhase==="working"?"WORKING":timerPhase==="paused"?"PAUSED":"BREAK";
+  el.innerHTML=`
+    <svg width="200" height="200" viewBox="0 0 200 200" style="overflow:visible;">
+      <circle cx="100" cy="100" r="80" class="ring-track"/>
+      <circle cx="100" cy="100" r="80" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round"
+        stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"
+        class="timer-ring timer-dash"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:500;color:${timerPhase==="break"?"#66BB6A":"var(--text)"};">${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}</div>
+      <div style="font-size:10px;color:var(--muted);letter-spacing:0.1em;">${label}</div>
+    </div>`;
+  const ctrlEl=document.getElementById('timer-controls');
+  if(!ctrlEl) return;
+  if(timerPhase==="idle"){
+    ctrlEl.innerHTML=`<button class="btn" style="background:#F5A623;color:#000;max-width:180px;margin:0 auto;" onclick="startTimer()">▶  Start Focus</button>`;
+  } else if(timerPhase==="working"){
+    ctrlEl.innerHTML=`<div style="display:flex;gap:10px;justify-content:center;"><button class="btn-ghost" onclick="pauseTimer()">⏸ Pause</button><button class="btn-ghost" onclick="resetTimer()">↺ Reset</button><button class="btn-ghost" style="color:#EF5350;" onclick="showStuck()">🧱 Stuck?</button></div>`;
+  } else if(timerPhase==="paused"){
+    ctrlEl.innerHTML=`<div style="display:flex;gap:10px;justify-content:center;"><button class="btn" style="background:#F5A623;color:#000;max-width:120px;margin:0 auto;" onclick="resumeTimer()">▶ Resume</button><button class="btn-ghost" onclick="resetTimer()">↺ Reset</button></div>`;
+  } else if(timerPhase==="break"){
+    const move=BREAK_MOVES[Math.floor(Math.random()*BREAK_MOVES.length)];
+    ctrlEl.innerHTML=`<div style="background:#081A08;border:1.5px solid #66BB6A33;border-radius:16px;padding:18px;text-align:center;margin-bottom:12px;"><div style="font-size:10px;color:#66BB6A;font-weight:700;letter-spacing:0.1em;margin-bottom:8px;">BREAK — MOVE YOUR BODY (BARKLEY)</div><div style="font-size:16px;font-weight:600;margin-bottom:8px;">${move}</div><div style="font-size:11px;color:var(--muted);">Movement restores dopamine. Don't skip this.</div></div><button class="btn" style="background:#66BB6A;color:#000;max-width:220px;margin:0 auto;" onclick="resetTimer()">Done — Next Session</button>`;
+  }
+}
+
+// ── BREATHING ─────────────────────────────────────────────────────────────
+function startBreath(){
+  breathPhase="inhale"; breathCount=0; breathSec=0;
+  clearInterval(breathInterval);
+  breathInterval=setInterval(()=>{
+    breathSec++;
+    if(breathPhase==="inhale"&&breathSec>=4){breathPhase="hold";breathSec=0;}
+    else if(breathPhase==="hold"&&breathSec>=4){breathPhase="exhale";breathSec=0;}
+    else if(breathPhase==="exhale"&&breathSec>=6){breathPhase="inhale";breathSec=0;breathCount++;}
+    renderBreath();
+  },1000);
+  renderBreath();
+}
+function stopBreath(){ clearInterval(breathInterval); breathPhase="idle"; renderBreath(); }
+function renderBreath(){
+  const el=document.getElementById('breath-display');
+  if(!el) return;
+  const icons={idle:"🫁",inhale:"⬆️",hold:"⏸",exhale:"⬇️"};
+  const labels={idle:"Tap to begin",inhale:"Breathe IN...",hold:"Hold...",exhale:"Breathe OUT..."};
+  const colors={idle:"var(--muted)",inhale:"#4FC3F7",hold:"#F5A623",exhale:"#66BB6A"};
+  el.innerHTML=`
+    <div onclick="${breathPhase==="idle"?"startBreath()":"stopBreath()"}" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:32px;border-radius:50%;background:${breathPhase==="idle"?"#16162A":colors[breathPhase]+"18"};border:2px solid ${breathPhase==="idle"?"#16162A":colors[breathPhase]+"44"};transition:all 1s;min-width:160px;min-height:160px;justify-content:center;">
+      <div style="font-size:40px;">${icons[breathPhase]}</div>
+      <div style="font-size:13px;color:${colors[breathPhase]};font-weight:600;">${labels[breathPhase]}</div>
+      ${breathCount>0?`<div style="font-size:10px;color:var(--muted);">Cycle ${breathCount}</div>`:""}
+    </div>`;
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────
+function showModal(html){
+  const el=document.createElement('div');
+  el.className='modal-bg';
+  el.innerHTML=`<div class="modal">${html}<button class="btn-ghost" style="width:100%;margin-top:16px;border-color:#333;color:var(--muted);" onclick="closeModal()">Close</button></div>`;
+  el.addEventListener('click',e=>{ if(e.target===el) closeModal(); });
+  document.getElementById('app').appendChild(el);
+}
+function closeModal(){ document.querySelector('.modal-bg')?.remove(); }
+
+function showRSD(){
+  showModal(`
+    <div style="font-size:28px;margin-bottom:10px;">💜</div>
+    <div style="font-weight:800;font-size:18px;color:#AB47BC;margin-bottom:4px;">Rejection Sensitive Dysphoria</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Dr. William Dodson — affects 99% of ADHD people</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.7;background:#16162A;border-radius:12px;padding:12px 14px;margin-bottom:16px;">What you're feeling is <strong style="color:#AB47BC;">neurological</strong>, not weakness. Your nervous system fires in a way neurotypical brains simply don't. Naming it as RSD gives you power over it.</div>
+    ${["Say out loud: 'This is RSD. This is my nervous system, not reality.'","Cold water on your face or wrists. Ground yourself in your body.","Ask: will this matter in 24 hours? In a week?","Do NOT respond, react, or decide anything for at least 1 hour.","Your sensitivity is the same trait that makes you deeply caring. It's a feature."].map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start;"><div style="min-width:22px;height:22px;border-radius:6px;background:#AB47BC22;color:#AB47BC;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">${i+1}</div><div style="font-size:13px;line-height:1.6;">${s}</div></div>`).join("")}
+    <button class="btn" style="background:#AB47BC;color:#fff;margin-top:8px;" onclick="closeModal()">I see it. I name it. I'm okay.</button>
+  `);
+}
+function showOverwhelm(){
+  showModal(`
+    <div style="font-size:28px;margin-bottom:10px;">🌀</div>
+    <div style="font-weight:800;font-size:18px;color:#EF5350;margin-bottom:4px;">Overwhelm Protocol</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Barkley: "Simplify immediately. The ADHD brain drowns in complexity."</div>
+    ${["STOP. You are not going to solve everything right now.","Take 3 slow breaths — out longer than in.","Name ONE thing that actually matters today.","Everything else? Write it on paper. Tell it: 'Not now.'","Do the ONE thing for exactly 5 minutes. Only 5 minutes.","Still spiraling? Change rooms. Change your physical environment."].map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:14px;align-items:flex-start;"><div style="min-width:26px;height:26px;border-radius:8px;background:#EF535015;color:#EF5350;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">${i+1}</div><div style="font-size:14px;line-height:1.6;">${s}</div></div>`).join("")}
+    <button class="btn" style="background:#EF5350;color:#fff;margin-top:8px;" onclick="closeModal()">One thing. 5 minutes. Let's go.</button>
+  `);
+}
+function showStuck(){
+  showModal(`
+    <div style="font-size:28px;margin-bottom:10px;">🧱</div>
+    <div style="font-weight:800;font-size:18px;margin-bottom:8px;">You're stuck. That's normal.</div>
+    <div style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:16px;">ADHD brains don't have a 'stuck override.' Here's what actually works:</div>
+    ${STUCK_TIPS.map((t,i)=>`<div style="display:flex;gap:10px;margin-bottom:12px;"><div style="min-width:22px;height:22px;border-radius:6px;background:#F5A62322;color:#F5A623;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div><div style="font-size:13px;line-height:1.6;">${t}</div></div>`).join("")}
+    <button class="btn" style="background:#F5A623;color:#000;margin-top:8px;" onclick="closeModal()">Got it — back to work</button>
+  `);
+}
+function showUrge(id){
+  const u=URGES.find(x=>x.id===id); if(!u) return;
+  showModal(`
+    <div style="font-size:32px;margin-bottom:12px;">⚡</div>
+    <div style="font-weight:800;font-size:17px;color:#F5A623;margin-bottom:4px;">Before you act on that urge</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Need underneath: <strong>${u.need}</strong></div>
+    <div style="font-size:15px;line-height:1.8;color:var(--text);background:#14100A;border:1.5px solid #F5A62322;border-radius:14px;padding:16px;margin-bottom:16px;">${u.redirect}</div>
+    <button class="btn" style="background:#66BB6A;color:#000;" onclick="closeModal()">✓ Urge redirected</button>
+  `);
+}
+
+// ── SCREENS ────────────────────────────────────────────────────────────────
+function renderHQ(){
+  const done=HABITS.filter(h=>td()[h.id]).length;
+  const total=HABITS.length;
+  const pct=Math.round(done/total*100);
+  const C=2*Math.PI*24;
+  const hour=new Date().getHours();
+  const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+  const wd=weekDates();
+  const dayPct=Math.min(100,Math.round(((hour*60+new Date().getMinutes())/(24*60))*100));
+  const emotion=EMOTIONS.find(e=>e.id===ci().emotion);
+  const savedFocus=S.oneFocus[TODAY]||"";
+
+  return `
+  <div class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+      <div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em;margin-bottom:4px;">${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}).toUpperCase()}</div>
+        <div style="font-size:26px;font-weight:800;letter-spacing:-0.02em;line-height:1.1;">${greeting} 👋</div>
+        ${emotion?`<div style="display:flex;align-items:center;gap:6px;margin-top:6px;"><span>${emotion.e}</span><span style="font-size:12px;color:${emotion.c};">Feeling ${emotion.l.toLowerCase()}</span></div>`:""}
+      </div>
+      <div style="position:relative;width:60px;height:60px;flex-shrink:0;">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="24" class="ring-track"/>
+          <circle id="ring-fill" cx="30" cy="30" r="24" fill="none" stroke="${pct===100?"#66BB6A":"#F5A623"}" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}" class="ring-fill"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+          <div id="ring-label" style="font-size:11px;font-weight:700;color:${pct===100?"#66BB6A":"var(--text)"};">${done}/${total}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day bar -->
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span class="section-label">DAY PROGRESS</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${dayPct}%;background:linear-gradient(90deg,#4FC3F7,#F5A623);"></div></div>
+    </div>
+
+    <!-- ONE THING -->
+    <div style="margin-bottom:20px;">
+      <div class="section-label" style="margin-bottom:8px;">🎯 YOUR ONE THING TODAY</div>
+      <input class="input" placeholder="What's the one task that makes today a win?" value="${savedFocus.replace(/"/g,'&quot;')}"
+        oninput="S.oneFocus['${TODAY}']=this.value;save();" style="font-size:15px;font-weight:500;"/>
+      ${savedFocus?`<div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;padding-left:4px;">Barkley: "One priority. Everything else is noise until this is done."</div>`:""}
+    </div>
+
+    <!-- Week strip -->
+    <div style="margin-bottom:20px;">
+      <div class="section-label" style="margin-bottom:10px;">THIS WEEK</div>
+      <div style="display:flex;gap:6px;justify-content:space-between;">
+        ${wd.map(date=>{
+          const count=HABITS.filter(h=>(S.habitData[date]||{})[h.id]).length;
+          const isT=date===TODAY;
+          const fill=count===0?"#111":count<3?"#151F15":count<7?"#1A2E1A":"#1E3D1E";
+          return `<div class="week-day">
+            <div style="font-size:9px;color:${isT?"#4FC3F7":"var(--muted)"};">${WEEK_DAYS[new Date(date+"T12:00").getDay()]}</div>
+            <div class="week-dot" style="background:${fill};border:${isT?"2px solid #4FC3F744":"1.5px solid #111"};color:${isT?"#4FC3F7":count>0?"#66BB6A":"#333"};">${count>0?count:"·"}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+
+    <!-- Dopamine gate -->
+    <button onclick="showUrgeMenu()" style="width:100%;padding:13px;background:#1a0512;border:1.5px solid #F472B633;border-radius:13px;color:#F472B6;cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:8px;">
+      ⚡ DOPAMINE URGE? TAP HERE FIRST
+    </button>
+
+    <!-- Quick habits -->
+    <div class="section-label" style="margin-bottom:10px;">QUICK HABITS</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      ${HABITS.slice(0,4).map(h=>{
+        const done=!!(td()[h.id]);
+        const col=CAT_COLOR[h.cat]||"#888";
+        return `<div class="habit-row${done?" done":""}" data-habit="${h.id}" onclick="toggleHabit('${h.id}')">
+          <div class="check-btn${done?" checked":""}" style="${done?`background:${col}15;border:2px solid ${col}55;`:""}" onclick="event.stopPropagation();toggleHabit('${h.id}');">${done?"✓":h.emoji}</div>
+          <div><div style="font-size:13px;font-weight:500;color:${done?"var(--muted)":"var(--text)"};text-decoration:${done?"line-through":"none"};">${h.label}</div><div style="font-size:11px;color:#333;margin-top:1px;">${h.tiny}</div></div>
+        </div>`;
+      }).join("")}
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:16px;">+ ${HABITS.length-4} more habits in the Habits tab</div>
+
+    <!-- Barkley quote -->
+    <div style="background:#05050F;border:1.5px solid #16162A;border-radius:14px;padding:14px 16px;">
+      <div style="font-size:10px;color:#4FC3F7;font-weight:700;margin-bottom:6px;letter-spacing:0.06em;">BARKLEY REMINDER</div>
+      <div style="font-size:12px;color:#5050A0;line-height:1.7;font-style:italic;">"The ADHD brain responds to NOW. Make the right behavior the easiest behavior. Design your environment — don't rely on willpower."</div>
+    </div>
+  </div>`;
+}
+
+function showUrgeMenu(){
+  const html=URGES.map(u=>`
+    <button onclick="closeModal();showUrge('${u.id}');" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;width:100%;margin-bottom:8px;font-family:'Outfit',sans-serif;text-align:left;">
+      <span style="font-size:22px;">${u.e}</span>
+      <div><div style="font-size:13px;color:var(--text);font-weight:500;">${u.l}</div><div style="font-size:10px;color:var(--muted);">Need: ${u.need}</div></div>
+    </button>`).join("");
+  showModal(`<div style="font-size:11px;color:var(--muted);letter-spacing:0.1em;font-weight:700;margin-bottom:14px;">WHAT ARE YOU REACHING FOR?</div>${html}`);
+}
+
+function renderFocus(){
+  const mode=TIMER_MODES[S.timerMode];
+  return `
+  <div class="page">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Focus Mode</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Barkley: "Make time visible. ADHD needs a clock they can see and feel."</div>
+
+    <div style="margin-bottom:20px;">
+      <div class="section-label" style="margin-bottom:8px;">WHAT ARE YOU WORKING ON?</div>
+      <input class="input" id="task-input" placeholder="Name the task — specificity activates the brain" value="${(S.oneFocus[TODAY]||"").replace(/"/g,'&quot;')}" oninput="S.oneFocus['${TODAY}']=this.value;save();"/>
+    </div>
+
+    ${timerPhase==="idle"?`
+    <div style="margin-bottom:20px;">
+      <div class="section-label" style="margin-bottom:8px;">TIMER MODE</div>
+      <div style="display:flex;gap:8px;">
+        ${Object.entries(TIMER_MODES).map(([k,m])=>`<button class="tab-pill${S.timerMode===k?" active":""}" onclick="S.timerMode='${k}';save();timerTotal=${m.mins*60};document.getElementById('timer-display').style.opacity='0.7';setTimeout(()=>{if(document.getElementById('timer-display'))document.getElementById('timer-display').style.opacity='1';},100);renderFocusTimer();">${m.label} (${m.mins}m)</button>`).join("")}
+      </div>
+    </div>`:""}
+
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px;">
+      <div id="timer-display" style="position:relative;width:200px;height:200px;"></div>
+      <div id="timer-controls" style="margin-top:16px;width:100%;"></div>
+    </div>
+
+    <!-- Body double -->
+    <div class="card" style="padding:14px 16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;font-weight:600;">👥 Body Double Mode</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">Working alongside others activates ADHD brains (Hallowell)</div>
+        </div>
+        <div class="toggle" style="background:${S.bodyDouble?"#F5A623":"#1A1A2A"};" onclick="S.bodyDouble=!S.bodyDouble;save();this.style.background=S.bodyDouble?'#F5A623':'#1A1A2A';this.querySelector('.toggle-knob').style.left=S.bodyDouble?'24px':'3px';">
+          <div class="toggle-knob" style="left:${S.bodyDouble?"24px":"3px"};"></div>
+        </div>
+      </div>
+      ${S.bodyDouble?`<div style="margin-top:12px;padding:10px 14px;background:#0D1A0D;border-radius:10px;font-size:12px;color:#66BB6A;">🟢 Someone is working alongside you. You're not alone. Stay focused.</div>`:""}
+    </div>
+
+    <!-- Task breakdown -->
+    <div class="card" style="padding:14px 16px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px;">🔧 Can't Start? Break It Down</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">Barkley: "The ADHD brain can't initiate a big task. It CAN start step 1."</div>
+      <input class="input" placeholder="Step 1..." style="margin-bottom:8px;font-size:13px;"/>
+      <input class="input" placeholder="Step 2..." style="margin-bottom:8px;font-size:13px;"/>
+      <input class="input" placeholder="Step 3..." style="font-size:13px;"/>
+    </div>
+  </div>`;
+}
+
+let regTab="checkin", selectedUrgeId=null;
+function renderRegulate(){
+  return `
+  <div class="page">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Regulate</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Maté: "Shame shuts the brain down. Compassion opens it back up."</div>
+
+    <!-- Emergency buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+      <button onclick="showRSD()" style="background:#14061A;border:1.5px solid #AB47BC33;border-radius:14px;padding:14px 12px;cursor:pointer;text-align:left;">
+        <div style="font-size:20px;margin-bottom:6px;">💜</div>
+        <div style="font-size:12px;font-weight:700;color:#AB47BC;">RSD Emergency</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Rejection hit hard</div>
+      </button>
+      <button onclick="showOverwhelm()" style="background:#1A0606;border:1.5px solid #EF535033;border-radius:14px;padding:14px 12px;cursor:pointer;text-align:left;">
+        <div style="font-size:20px;margin-bottom:6px;">🌀</div>
+        <div style="font-size:12px;font-weight:700;color:#EF5350;">Overwhelm SOS</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;">Brain is spiraling</div>
+      </button>
+    </div>
+
+    <div class="tab-pills" style="margin-bottom:20px;">
+      <button class="tab-pill${regTab==="checkin"?" active":""}" onclick="regTab='checkin';reRenderRegBody();">Check-In</button>
+      <button class="tab-pill${regTab==="urge"?" active":""}" onclick="regTab='urge';reRenderRegBody();">Urge Interceptor</button>
+      <button class="tab-pill${regTab==="breathe"?" active":""}" onclick="regTab='breathe';reRenderRegBody();">Breathe</button>
+    </div>
+    <div id="reg-body">${renderRegBody()}</div>
+  </div>`;
+}
+function reRenderRegBody(){ const el=document.getElementById('reg-body'); if(el) el.innerHTML=renderRegBody(); if(regTab==="breathe"){ breathPhase="idle"; renderBreath(); } }
+function renderRegBody(){
+  if(regTab==="checkin") return renderCheckin();
+  if(regTab==="urge") return renderUrgeInterceptor();
+  return renderBreathe();
+}
+function renderCheckin(){
+  const curEmotion=EMOTIONS.find(e=>e.id===ci().emotion);
+  return `
+    <div class="section-label" style="margin-bottom:12px;">HOW ARE YOU RIGHT NOW?</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
+      ${EMOTIONS.map(em=>`<button class="em-btn${ci().emotion===em.id?" sel":""}" style="${ci().emotion===em.id?`background:${em.c}18;border-color:${em.c}44;`:""}" onclick="S.checkins['${TODAY}']={...S.checkins['${TODAY}'],emotion:'${em.id}',time:new Date().toTimeString().slice(0,5)};save();reRenderRegBody();">
+        <span style="font-size:20px;">${em.e}</span>
+        <span style="font-size:9px;color:${ci().emotion===em.id?em.c:"var(--muted)"};font-weight:600;text-align:center;line-height:1.2;">${em.l}</span>
+      </button>`).join("")}
+    </div>
+    ${curEmotion?`<div style="background:${curEmotion.c}10;border:1.5px solid ${curEmotion.c}22;border-radius:14px;padding:14px 16px;">
+      <div style="font-size:10px;color:${curEmotion.c};font-weight:700;letter-spacing:0.08em;margin-bottom:6px;">FOR THIS STATE ↓</div>
+      <div style="font-size:14px;line-height:1.7;">${curEmotion.tip}</div>
+      ${ci().time?`<div style="font-size:10px;color:var(--muted);margin-top:8px;">Checked in at ${ci().time}</div>`:""}
+    </div>`:""}
+    <div style="margin-top:18px;">
+      <div class="section-label" style="margin-bottom:10px;">MATÉ BODY SCAN — WHERE DO YOU FEEL IT?</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        ${["Head/Mind","Chest/Heart","Stomach","Throat","Shoulders","Whole body"].map(area=>{
+          const sel=(ci().bodyArea||"")===area;
+          return `<button onclick="S.checkins['${TODAY}']={...S.checkins['${TODAY}'],bodyArea:'${area}'};save();reRenderRegBody();" style="background:${sel?"#14142A":"var(--card)"};border:1.5px solid ${sel?"#F5A62355":"var(--border)"};border-radius:10px;padding:10px 8px;cursor:pointer;font-size:11px;color:${sel?"#F5A623":"var(--muted)"};font-weight:${sel?600:400};font-family:'Outfit',sans-serif;transition:all 0.15s;">${area}</button>`;
+        }).join("")}
+      </div>
+      ${ci().bodyArea?`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;">Maté: "The body always tells the truth. Your emotions live there first."</div>`:""}
+    </div>`;
+}
+function renderUrgeInterceptor(){
+  return `
+    <div class="section-label" style="margin-bottom:10px;">WHAT ARE YOU REACHING FOR?</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Maté: "Name the urge. Name the need behind it. That's the whole work."</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${URGES.map(u=>`<button onclick="showUrge('${u.id}')" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;width:100%;font-family:'Outfit',sans-serif;text-align:left;">
+        <span style="font-size:22px;">${u.e}</span>
+        <div><div style="font-size:13px;color:var(--text);font-weight:500;">${u.l}</div><div style="font-size:10px;color:var(--muted);">Need: ${u.need}</div></div>
+      </button>`).join("")}
+    </div>`;
+}
+function renderBreathe(){
+  return `
+    <div class="section-label" style="margin-bottom:16px;">4-4-6 BREATHING — NERVOUS SYSTEM RESET</div>
+    <div style="display:flex;justify-content:center;margin-bottom:20px;"><div id="breath-display"></div></div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;text-align:center;max-width:280px;margin:0 auto;">
+      Inhale 4 counts → Hold 4 counts → Exhale 6 counts.<br/>
+      The longer exhale activates your parasympathetic system — your calm response.
+    </div>`;
+}
+
+let habitsTab="today", habitsAnchor="morning";
+function renderHabits(){
+  const done=HABITS.filter(h=>td()[h.id]).length;
+  return `
+  <div class="page">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;">Habits</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Anchor-based. Not clock-based. (Barkley)</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;color:${done===HABITS.length?"#66BB6A":"#F5A623"};">${done}/${HABITS.length}</div>
+        <div style="font-size:10px;color:var(--muted);">today</div>
+      </div>
+    </div>
+    <div class="tab-pills" style="margin-bottom:20px;">
+      <button class="tab-pill${habitsTab==="today"?" active":""}" onclick="habitsTab='today';reRenderHabitsBody();">Today</button>
+      <button class="tab-pill${habitsTab==="week"?" active":""}" onclick="habitsTab='week';reRenderHabitsBody();">This Week</button>
+    </div>
+    <div id="habits-body">${renderHabitsBody()}</div>
+  </div>`;
+}
+function reRenderHabitsBody(){ const el=document.getElementById('habits-body'); if(el) el.innerHTML=renderHabitsBody(); }
+function renderHabitsBody(){
+  if(habitsTab==="week") return renderHabitsWeek();
+  const wd=weekDates();
+  const anchorHabits=HABITS.filter(h=>h.anchor===habitsAnchor);
+  const doneAll=anchorHabits.every(h=>td()[h.id]);
+  return `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;">
+      ${Object.entries(ANCHORS).map(([k,a])=>{
+        const cnt=HABITS.filter(h=>h.anchor===k&&td()[h.id]).length;
+        const tot=HABITS.filter(h=>h.anchor===k).length;
+        const sel=habitsAnchor===k;
+        return `<button onclick="habitsAnchor='${k}';reRenderHabitsBody();" style="background:${sel?"#12122A":"var(--card)"};border:1.5px solid ${sel?"#F5A62355":"var(--border)"};border-radius:14px;padding:12px 8px;cursor:pointer;text-align:center;font-family:'Outfit',sans-serif;transition:all 0.15s;">
+          <div style="font-size:20px;margin-bottom:4px;">${a.emoji}</div>
+          <div style="font-size:10px;font-weight:700;color:${sel?"#F5A623":"var(--text)"};">${a.label}</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">${cnt}/${tot}</div>
+        </button>`;
+      }).join("")}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;font-style:italic;">${ANCHORS[habitsAnchor].desc}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${anchorHabits.map(h=>{
+        const done=!!(td()[h.id]);
+        const col=CAT_COLOR[h.cat]||"#888";
+        const streak=getStreak(h.id);
+        return `<div class="habit-row${done?" done":""}" data-habit="${h.id}" onclick="toggleHabit('${h.id}');reRenderHabitsBody();">
+          <div class="check-btn${done?" checked":""}" style="${done?`background:${col}15;border:2px solid ${col}55;`:""}">
+            ${done?"✓":h.emoji}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:500;color:${done?"var(--muted)":"var(--text)"};text-decoration:${done?"line-through":"none"};">${h.label}</div>
+            <div style="font-size:11px;color:#333;margin-top:1px;">${h.tiny}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <div style="font-size:9px;color:${col};font-weight:700;letter-spacing:0.06em;">${h.cat.toUpperCase()}</div>
+            ${streak>1?`<div style="font-size:10px;padding:3px 7px;border-radius:20px;background:#F5A62318;color:#F5A623;font-weight:600;">🔥${streak}</div>`:""}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+    ${doneAll&&anchorHabits.length>0?`<div style="margin-top:14px;background:#081808;border:1.5px solid #66BB6A33;border-radius:12px;padding:12px;text-align:center;font-size:13px;color:#66BB6A;">✓ All ${habitsAnchor} habits done. Say "yes!" out loud — that dopamine is real. (Barkley)</div>`:""}
+    <div style="margin-top:16px;padding:12px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;"><strong style="color:#888;">Never Miss Twice</strong> — Miss one day? Fine. Miss two? You've started a new habit — the habit of not doing it.</div>
+    </div>`;
+}
+function renderHabitsWeek(){
+  const wd=weekDates();
+  return HABITS.map(h=>{
+    const col=CAT_COLOR[h.cat]||"#888";
+    const streak=getStreak(h.id);
+    const done7=wd.filter(d=>(S.habitData[d]||{})[h.id]).length;
+    return `<div class="card" style="padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">${h.emoji}</span>
+          <div><div style="font-size:13px;">${h.label}</div><div style="font-size:10px;color:${col};margin-top:1px;">${h.cat} · ${h.anchor}</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);">${done7}/7</div>
+      </div>
+      <div style="display:flex;gap:4px;">
+        ${wd.map(date=>{
+          const done=!!(S.habitData[date]||{})[h.id];
+          const isT=date===TODAY;
+          return `<div style="flex:1;height:6px;border-radius:3px;background:${done?col:"#16162A"};border:${isT&&!done?`1px solid ${col}33`:"none"};"></div>`;
+        }).join("")}
+      </div>
+      ${streak>1?`<div style="margin-top:8px;font-size:10px;color:#F5A623;">🔥 ${streak}-day streak</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+let wisdomTab="insight";
+const promptIdx=Math.floor(Math.random()*JOURNAL_PROMPTS.length);
+function renderWisdom(){
+  return `
+  <div class="page">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">Wisdom</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Know your brain. Change your story.</div>
+
+    <div style="background:linear-gradient(135deg,#0D0A00,#1A1400);border:1.5px solid #F5A62322;border-radius:14px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:32px;">🏆</div>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;color:#F5A623;">${S.totalWins||0}</div>
+        <div style="font-size:11px;color:var(--muted);">total habit completions — your brain wiring is changing</div>
+      </div>
+    </div>
+
+    <div class="tab-pills" style="margin-bottom:20px;">
+      <button class="tab-pill${wisdomTab==="insight"?" active":""}" onclick="wisdomTab='insight';reRenderWisdomBody();">Insights</button>
+      <button class="tab-pill${wisdomTab==="journal"?" active":""}" onclick="wisdomTab='journal';reRenderWisdomBody();">Journal</button>
+      <button class="tab-pill${wisdomTab==="understand"?" active":""}" onclick="wisdomTab='understand';reRenderWisdomBody();">Understand</button>
+    </div>
+    <div id="wisdom-body">${renderWisdomBody()}</div>
+  </div>`;
+}
+function reRenderWisdomBody(){ const el=document.getElementById('wisdom-body'); if(el) el.innerHTML=renderWisdomBody(); }
+function renderWisdomBody(){
+  if(wisdomTab==="journal") return renderJournal();
+  if(wisdomTab==="understand") return renderUnderstand();
+  return renderInsights();
+}
+function renderInsights(){
+  const idx=S.insightIdx%INSIGHTS.length;
+  const ins=INSIGHTS[idx];
+  return `
+    <div style="background:${ins.c}08;border:1.5px solid ${ins.c}22;border-radius:20px;padding:24px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="chip" style="background:${ins.c}18;color:${ins.c};">${ins.a}</div>
+        <div style="font-size:10px;color:var(--muted);">${idx+1}/${INSIGHTS.length}</div>
+      </div>
+      <div style="font-size:16px;font-weight:700;line-height:1.55;font-style:italic;margin-bottom:14px;">"${ins.q}"</div>
+      <div style="height:1px;background:${ins.c}22;margin-bottom:14px;"></div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8;">${ins.ctx}</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:24px;">
+      <button class="btn-ghost" style="flex:1;" onclick="S.insightIdx=(S.insightIdx-1+${INSIGHTS.length})%${INSIGHTS.length};save();reRenderWisdomBody();">← Previous</button>
+      <button style="flex:1;padding:10px;border-radius:11px;border:1.5px solid ${ins.c}33;background:${ins.c}22;color:${ins.c};cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;" onclick="S.insightIdx=(S.insightIdx+1)%${INSIGHTS.length};save();reRenderWisdomBody();">Next →</button>
+    </div>
+    <div class="section-label" style="margin-bottom:10px;">BROWSE BY EXPERT</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      ${[{k:"barkley",l:"Dr. Barkley",c:"#4FC3F7"},{k:"mate",l:"Dr. Maté",c:"#F5A623"},{k:"hallowell",l:"Dr. Hallowell",c:"#66BB6A"},{k:"dodson",l:"Dr. Dodson",c:"#AB47BC"}].map(a=>`<button onclick="S.insightIdx=${INSIGHTS.findIndex(i=>i.t===a.k)};save();reRenderWisdomBody();" style="padding:6px 14px;border-radius:20px;background:${a.c}18;border:1px solid ${a.c}33;color:${a.c};font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;">${a.l}</button>`).join("")}
+    </div>`;
+}
+function renderJournal(){
+  const saved=S.journalEntries?.[TODAY]||"";
+  return `
+    <div style="background:#F5A62310;border:1.5px solid #F5A62322;border-radius:14px;padding:14px 16px;margin-bottom:14px;">
+      <div style="font-size:10px;color:#F5A623;font-weight:700;letter-spacing:0.08em;margin-bottom:6px;">TODAY'S PROMPT</div>
+      <div style="font-size:14px;line-height:1.7;font-style:italic;">"${JOURNAL_PROMPTS[promptIdx]}"</div>
+    </div>
+    <textarea class="textarea" id="journal-ta" rows="8" placeholder="Write here — no judgment, no format, no rules.">${saved}</textarea>
+    <button class="btn" id="save-journal-btn" style="background:#F5A623;color:#000;margin-top:10px;" onclick="saveJournal()">Save Entry</button>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center;line-height:1.6;">Maté: "Writing gives the unconscious a voice. What you can name, you can work with."</div>`;
+}
+function saveJournal(){
+  const ta=document.getElementById('journal-ta');
+  if(!ta) return;
+  S.journalEntries=S.journalEntries||{};
+  S.journalEntries[TODAY]=ta.value;
+  save();
+  const btn=document.getElementById('save-journal-btn');
+  if(btn){ btn.textContent="✓ Saved"; btn.style.background="#66BB6A"; setTimeout(()=>{ btn.textContent="Save Entry"; btn.style.background="#F5A623"; },2000); }
+}
+const UNDERSTAND = [
+  {t:"Why your brain seeks dopamine",c:"#F5A623",i:"⚡",b:"Maté: The ADHD brain has dysregulated dopamine signaling. When you doom-scroll or binge-eat, you're not being weak — you're self-medicating a neurological deficit. Understanding this removes shame and opens the door to conscious redirection."},
+  {t:"Why you can't 'just start'",c:"#4FC3F7",i:"🧱",b:"Barkley: Task initiation requires the prefrontal cortex to manufacture interest or urgency. The ADHD brain doesn't do this automatically. This is why you need external triggers — timers, accountability, body doubling — at the exact moment of starting."},
+  {t:"Why you forget everything",c:"#66BB6A",i:"🌫️",b:"Barkley: Working memory in ADHD is like a whiteboard that gets erased every few minutes. This is neurological, not a character flaw. The fix is radical externalization — nothing lives in your head. Everything lives in your environment."},
+  {t:"Why shame makes it worse",c:"#AB47BC",i:"💔",b:"Maté: Shame activates the brain's pain circuitry and shuts down the prefrontal cortex — the exact region ADHD already struggles with. Self-criticism doesn't motivate the ADHD brain. It paralyzes it. Self-compassion is literally a performance enhancer."},
+  {t:"Why exercise is non-negotiable",c:"#FF7043",i:"🏃",b:"Barkley + Ratey: 20-30 minutes of aerobic exercise elevates dopamine, norepinephrine, and serotonin in a way that mimics stimulant medication. It also grows the prefrontal cortex over time. If you do nothing else, do this."},
+  {t:"Why hyperfocus is your superpower",c:"#F5A623",i:"🔥",b:"Hallowell: The ADHD brain can enter a state of deep, effortless focus when intrinsically motivated. This is the Ferrari engine. Your job is to find the work that puts you in this state, then build structures that let you do it reliably."},
+];
+let openUnderstand=-1;
+function renderUnderstand(){
+  return UNDERSTAND.map((card,i)=>`
+    <div class="understand-card${openUnderstand===i?" open":""}" style="border-left-color:${card.c};background:var(--card);border:1.5px solid ${card.c}22;border-left:3px solid ${card.c};margin-bottom:10px;" onclick="openUnderstand=openUnderstand===${i}?-1:${i};reRenderWisdomBody();">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">${card.i}</span>
+          <div style="font-size:13px;font-weight:600;color:${card.c};">${card.t}</div>
+        </div>
+        <div style="color:var(--muted);transform:${openUnderstand===i?"rotate(90deg)":"none"};transition:transform 0.2s;">›</div>
+      </div>
+      ${openUnderstand===i?`<div class="body" style="display:block;">${card.b}</div>`:""}
+    </div>`).join("");
+}
+
+// ── MAIN RENDER ────────────────────────────────────────────────────────────
+function render(){
+  const el=document.getElementById('screen');
+  if(currentScreen==="hq") el.innerHTML=renderHQ();
+  else if(currentScreen==="focus"){ el.innerHTML=renderFocus(); timerTotal=TIMER_MODES[S.timerMode].mins*60; renderFocusTimer(); }
+  else if(currentScreen==="regulate"){ el.innerHTML=renderRegulate(); if(regTab==="breathe") renderBreath(); }
+  else if(currentScreen==="habits") el.innerHTML=renderHabits();
+  else if(currentScreen==="wisdom") el.innerHTML=renderWisdom();
+  el.scrollTop=0;
+  updateHabitCount();
+}
+render();
+</script>
+</body>
+</html>
