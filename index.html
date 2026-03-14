@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Focal"/>
+<meta name="theme-color" content="#F5F5F7"/>
+<title>Focal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & ROOT ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --white:    #FFFFFF;
+  --sheet:    #F5F5F7;
+  --card:     #FFFFFF;
+  --sep:      rgba(0,0,0,0.08);
+  --sep2:     rgba(0,0,0,0.05);
+  --ink:      #1D1D1F;
+  --ink2:     #3A3A3C;
+  --ink3:     #636366;
+  --ink4:     #AEAEB2;
+  --ink5:     #D1D1D6;
+  --blue:     #0071E3;
+  --blue-lt:  #E8F1FC;
+  --green:    #34C759;
+  --red:      #FF3B30;
+  --orange:   #FF9500;
+  --purple:   #AF52DE;
+  --r-card:   18px;
+  --r-btn:    14px;
+  --r-pill:   100px;
+  --shadow:   0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-modal: 0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+  --trans:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body {
+  background: var(--sheet);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────── */
+#app { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+#screen {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+#screen::-webkit-scrollbar { display: none; }
+.page { padding: 0 0 24px; animation: appear 0.32s var(--trans); }
+@keyframes appear { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── PAGE HEADER ────────────────────────────────────────────── */
+.page-header {
+  padding: 56px 24px 0;
+  margin-bottom: 32px;
+}
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.page-sub {
+  font-size: 14px;
+  color: var(--ink4);
+  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+}
+
+/* ── SECTION ────────────────────────────────────────────────── */
+.section { margin-bottom: 32px; padding: 0 20px; }
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink4);
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* ── CARD ───────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 0.5px solid var(--sep2);
+  cursor: pointer;
+  transition: background 0.12s var(--trans);
+  -webkit-user-select: none;
+}
+.card-row:last-child { border-bottom: none; }
+.card-row:active { background: var(--sheet); }
+.card-solo { padding: 16px; }
+
+/* ── BUTTONS ────────────────────────────────────────────────── */
+.btn {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  border-radius: var(--r-btn);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s var(--trans), transform 0.12s var(--trans);
+  letter-spacing: -0.2px;
+}
+.btn:active { opacity: 0.75; transform: scale(0.98); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-secondary { background: var(--blue-lt); color: var(--blue); }
+.btn-ghost { background: var(--sheet); color: var(--ink2); }
+.btn-danger { background: #FFF0EF; color: var(--red); }
+.btn-inline {
+  width: auto;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ── CHECK BUTTON ───────────────────────────────────────────── */
+.check-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  background: var(--sheet);
+  transition: all 0.2s var(--trans);
+  cursor: pointer;
+}
+.check-wrap.done {
+  background: #EDFAF0;
+  font-size: 16px;
+  color: var(--green);
+}
+.check-wrap.pop { animation: checkPop 0.38s var(--trans); }
+@keyframes checkPop {
+  0%  { transform: scale(1); }
+  45% { transform: scale(1.32); }
+  72% { transform: scale(0.9); }
+  100%{ transform: scale(1); }
+}
+
+/* ── TYPOGRAPHY ─────────────────────────────────────────────── */
+.label-primary {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+.label-secondary {
+  font-size: 12px;
+  color: var(--ink4);
+  margin-top: 2px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+}
+.done .label-primary {
+  color: var(--ink4);
+  text-decoration: line-through;
+  text-decoration-color: var(--ink5);
+}
+
+/* ── INPUTS ─────────────────────────────────────────────────── */
+.input-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+  padding: 0;
+  letter-spacing: -0.2px;
+}
+.input-field::placeholder { color: var(--ink5); }
+.input-wrap {
+  background: var(--card);
+  border-radius: var(--r-card);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.textarea-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  resize: none;
+  line-height: 1.6;
+  letter-spacing: -0.2px;
+}
+.textarea-field::placeholder { color: var(--ink5); }
+
+/* ── PROGRESS RING ──────────────────────────────────────────── */
+.ring-svg { overflow: visible; }
+.ring-bg { fill: none; stroke: var(--sep); stroke-width: 3.5; }
+.ring-prog {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.7s var(--trans), stroke 0.4s var(--trans);
+}
+
+/* ── NAV BAR ────────────────────────────────────────────────── */
+#nav {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 0.5px solid var(--sep);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 8px 0 calc(10px + env(safe-area-inset-bottom));
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 12px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  -webkit-user-select: none;
+  transition: opacity 0.15s;
+}
+.nav-item:active { opacity: 0.5; }
+.nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.35);
+  transition: filter 0.2s var(--trans);
+}
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink4);
+  letter-spacing: -0.1px;
+  transition: color 0.2s;
+}
+.nav-item.active .nav-icon { filter: none; }
+.nav-item.active .nav-label { color: var(--blue); }
+
+/* ── PILLS (TABS) ───────────────────────────────────────────── */
+.pill-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0 6px;
+}
+.pill-row::-webkit-scrollbar { display: none; }
+.pill {
+  background: var(--card);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 7px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s var(--trans);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.pill.active {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,113,227,0.25);
+}
+
+/* ── TOGGLE ─────────────────────────────────────────────────── */
+.toggle-track {
+  width: 51px; height: 31px;
+  border-radius: 100px;
+  background: var(--ink5);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s var(--trans);
+  flex-shrink: 0;
+}
+.toggle-track.on { background: var(--green); }
+.toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: left 0.22s var(--trans);
+}
+.toggle-track.on .toggle-knob { left: 22px; }
+
+/* ── EMOTION GRID ───────────────────────────────────────────── */
+.em-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+.em-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  background: var(--card);
+  cursor: pointer;
+  transition: all 0.15s var(--trans);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.em-btn:active { transform: scale(0.94); }
+.em-btn.sel { border-color: var(--blue); background: var(--blue-lt); }
+.em-emoji { font-size: 22px; line-height: 1; }
+.em-label { font-size: 9px; font-weight: 500; color: var(--ink4); text-align: center; line-height: 1.2; }
+.em-btn.sel .em-label { color: var(--blue); }
+
+/* ── WEEK STRIP ─────────────────────────────────────────────── */
+.week-strip { display: flex; justify-content: space-between; gap: 4px; }
+.week-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.week-day-label { font-size: 10px; font-weight: 500; color: var(--ink5); }
+.week-dot {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--sheet);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink5);
+  border: 1.5px solid transparent;
+}
+.week-dot.today { border-color: var(--blue); color: var(--blue); }
+.week-dot.has-data { background: #EDFAF0; color: var(--green); }
+
+/* ── TIMER RING ─────────────────────────────────────────────── */
+.timer-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.timer-svg { transform: rotate(-90deg); transform-origin: 50% 50%; overflow: visible; }
+.t-bg { fill: none; stroke: var(--sep); stroke-width: 6; }
+.t-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear, stroke 0.4s var(--trans); }
+.timer-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.timer-time {
+  font-size: 52px;
+  font-weight: 200;
+  letter-spacing: -3px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.timer-phase {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink4);
+}
+
+/* ── PROG BAR ───────────────────────────────────────────────── */
+.prog-track { height: 3px; background: var(--sep); border-radius: 100px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 100px; transition: width 1.2s var(--trans); }
+
+/* ── STREAK ─────────────────────────────────────────────────── */
+.streak-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--orange);
+  background: rgba(255,149,0,0.1);
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+/* ── MODAL ──────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  animation: overlayIn 0.22s var(--trans);
+}
+@keyframes overlayIn { from { opacity:0; } to { opacity:1; } }
+.modal-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px calc(32px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: sheetUp 0.3s var(--trans);
+}
+.modal-sheet::-webkit-scrollbar { display: none; }
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.modal-handle { width: 36px; height: 4px; background: var(--ink5); border-radius: 100px; margin: 0 auto 20px; }
+.modal-title { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; color: var(--ink); margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--ink4); margin-bottom: 20px; }
+
+/* ── INSIGHT CARD ───────────────────────────────────────────── */
+.insight-wrap { background: var(--card); border-radius: var(--r-card); padding: 24px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.insight-author { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+.insight-quote {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.insight-divider { height: 0.5px; background: var(--sep); margin-bottom: 16px; }
+.insight-context { font-size: 14px; color: var(--ink3); line-height: 1.7; letter-spacing: -0.1px; }
+
+/* ── UNDERSTAND ─────────────────────────────────────────────── */
+.understand-row {
+  background: var(--card);
+  border-radius: var(--r-card);
+  margin-bottom: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.understand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  cursor: pointer;
+}
+.understand-body {
+  font-size: 14px;
+  color: var(--ink3);
+  line-height: 1.7;
+  padding: 0 16px 16px;
+  letter-spacing: -0.1px;
+  display: none;
+  animation: appear 0.2s var(--trans);
+}
+.understand-body.open { display: block; }
+.chevron { font-size: 12px; color: var(--ink4); transition: transform 0.2s var(--trans); }
+.chevron.open { transform: rotate(90deg); }
+
+/* ── ANCHOR PILLS ───────────────────────────────────────────── */
+.anchor-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.anchor-btn {
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: var(--r-card);
+  padding: 14px 8px;
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+  transition: all 0.15s var(--trans);
+}
+.anchor-btn:active { transform: scale(0.97); }
+.anchor-btn.active { border-color: var(--blue); background: var(--blue-lt); }
+.anchor-emoji { font-size: 22px; margin-bottom: 4px; }
+.anchor-label { font-size: 12px; font-weight: 600; color: var(--ink2); letter-spacing: -0.1px; }
+.anchor-btn.active .anchor-label { color: var(--blue); }
+.anchor-count { font-size: 11px; color: var(--ink4); margin-top: 2px; }
+
+/* ── MISC ───────────────────────────────────────────────────── */
+.divider { height: 0.5px; background: var(--sep2); margin: 0 16px; }
+.wins-card {
+  background: var(--ink);
+  border-radius: var(--r-card);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+.wins-number { font-size: 42px; font-weight: 200; color: #fff; letter-spacing: -2px; line-height: 1; }
+.wins-label { font-size: 13px; color: rgba(255,255,255,0.5); letter-spacing: -0.1px; line-height: 1.4; }
+
+.quote-card {
+  background: var(--card);
+  border-radius: var(--r-card);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border-left: 3px solid var(--blue);
+}
+.quote-text { font-size: 13px; color: var(--ink3); line-height: 1.7; font-style: italic; letter-spacing: -0.1px; }
+
+.emergency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+.emergency-btn {
+  border-radius: var(--r-card);
+  padding: 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  border: none;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+  transition: opacity 0.15s;
+}
+.emergency-btn:active { opacity: 0.7; }
+
+.week-bar-row { display: flex; gap: 3px; margin-top: 10px; }
+.week-bar { flex: 1; height: 4px; border-radius: 100px; background: var(--sep); transition: background 0.3s; }
+.week-bar.done { background: var(--green); }
+
+.breath-circle {
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0 auto 24px;
+  transition: all 1.2s var(--trans);
+  background: var(--sheet);
+  border: 2px solid var(--sep);
+}
+.breath-circle.inhale { background: #E8F5FF; border-color: #90CAF9; transform: scale(1.08); }
+.breath-circle.hold   { background: #FFF8E1; border-color: #FFD54F; }
+.breath-circle.exhale { background: #E8F5E9; border-color: #A5D6A7; transform: scale(0.95); }
+.breath-icon  { font-size: 44px; line-height: 1; }
+.breath-label { font-size: 15px; font-weight: 500; color: var(--ink2); letter-spacing: -0.2px; }
+.breath-cycle { font-size: 12px; color: var(--ink4); }
+
+.urge-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--card);
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+  transition: opacity 0.12s;
+  text-align: left;
+}
+.urge-btn:active { opacity: 0.7; }
+
+.redirect-box {
+  background: var(--sheet);
+  border-radius: var(--r-card);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.proto-step {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+.proto-num {
+  min-width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--sheet);
+  color: var(--ink3);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.proto-text { font-size: 14px; color: var(--ink2); line-height: 1.6; letter-spacing: -0.1px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="screen"></div>
+  <nav id="nav">
+    <button class="nav-item active" data-s="hq" onclick="go('hq')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Today</span>
+    </button>
+    <button class="nav-item" data-s="focus" onclick="go('focus')">
+      <span class="nav-icon">⏱</span>
+      <span class="nav-label">Focus</span>
+    </button>
+    <button class="nav-item" data-s="regulate" onclick="go('regulate')">
+      <span class="nav-icon">🫀</span>
+      <span class="nav-label">Regulate</span>
+    </button>
+    <button class="nav-item" data-s="habits" onclick="go('habits')">
+      <span class="nav-icon">✓</span>
+      <span class="nav-label">Habits</span>
+    </button>
+    <button class="nav-item" data-s="wisdom" onclick="go('wisdom')">
+      <span class="nav-icon">◎</span>
+      <span class="nav-label">Wisdom</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────── */
+const HABITS = [
+  {id:"exercise", label:"Move your body",         emoji:"🏃", anchor:"morning",   tiny:"5 min walk — neurological medicine", cat:"health"},
+  {id:"water",    label:"Water first",             emoji:"💧", anchor:"morning",   tiny:"Before coffee. One full glass.",      cat:"health"},
+  {id:"noscreen", label:"No phone — 30 min",       emoji:"📵", anchor:"morning",   tiny:"Phone face-down until after breakfast",cat:"dopamine"},
+  {id:"protein",  label:"Protein in breakfast",    emoji:"🥚", anchor:"morning",   tiny:"Eggs, nuts, yogurt — dopamine fuel",  cat:"health"},
+  {id:"onething", label:"Name your one thing",     emoji:"🎯", anchor:"morning",   tiny:"The single task that makes today win",cat:"focus"},
+  {id:"deepwork", label:"Deep work block",         emoji:"🧱", anchor:"afternoon", tiny:"25 min. One task. Phone elsewhere.",  cat:"focus"},
+  {id:"journal",  label:"Brain dump",              emoji:"📓", anchor:"afternoon", tiny:"3 sentences is enough.",              cat:"mind"},
+  {id:"urge",     label:"Pause before dopamine",   emoji:"⚡", anchor:"afternoon", tiny:"Notice urge. Wait 60 seconds.",       cat:"dopamine"},
+  {id:"reflect",  label:"Three-win reflection",    emoji:"🌙", anchor:"evening",   tiny:"Name 3 things that went okay today.", cat:"mind"},
+  {id:"sleep",    label:"Sleep wind-down",         emoji:"😴", anchor:"evening",   tiny:"No screens 30 min before bed.",       cat:"health"},
+];
+const CAT_C = {health:"#34C759", focus:"#0071E3", dopamine:"#FF9500", mind:"#AF52DE"};
+const ANCHORS = {
+  morning:   {label:"Morning",   emoji:"🌅", desc:"After waking — after coffee"},
+  afternoon: {label:"Afternoon", emoji:"☀️", desc:"After lunch — after sitting down"},
+  evening:   {label:"Evening",   emoji:"🌙", desc:"After dinner — before bed"},
+};
+const EMOTIONS = [
+  {id:"wired",      l:"Wired",      e:"⚡", tip:"Peak window. Start your hardest task immediately."},
+  {id:"energized",  l:"Energized",  e:"🔥", tip:"Ride this. Stack deep work here. Protect it."},
+  {id:"calm",       l:"Calm",       e:"🌊", tip:"Precious. Use it for planning and connection."},
+  {id:"foggy",      l:"Foggy",      e:"🌫", tip:"Walk for 10 minutes first. Blood to the brain."},
+  {id:"anxious",    l:"Anxious",    e:"😰", tip:"Breathe out longer than you breathe in. Ground yourself."},
+  {id:"overwhelmed",l:"Too Much",   e:"🌀", tip:"One thing only. The 2-minute version. Delete the rest."},
+  {id:"frustrated", l:"Frustrated", e:"😤", tip:"Move your body for 5 min. Don't push through friction."},
+  {id:"low",        l:"Low",        e:"😶", tip:"Light, water, protein, 5 min movement. In that order."},
+  {id:"avoidant",   l:"Avoidant",   e:"🪨", tip:"Say out loud what you're avoiding. Then 2 minutes only."},
+  {id:"sad",        l:"Sad",        e:"💙", tip:"Be gentle today. One small kind act for yourself is enough."},
+];
+const URGES = [
+  {id:"phone",    l:"Phone / Social media",  e:"📱", need:"Connection or novelty",    r:"Your brain wants connection or stimulation. Text one real person something genuine first. Or: 5 deep breaths, then ask — what was I actually trying to do?"},
+  {id:"food",     l:"Snacking",              e:"🍕", need:"Comfort or emotion",       r:"Drink a full glass of water. Wait 5 minutes. Then ask honestly — is this hunger, or am I trying to soothe something? Name the emotion if you can."},
+  {id:"gaming",   l:"Gaming or apps",        e:"🎮", need:"Achievement or escape",    r:"What are you escaping right now? Name it. Set a 5-minute timer and do exactly the thing you're avoiding. Just 5 minutes — then you can decide."},
+  {id:"watching", l:"Watching or streaming", e:"📺", need:"Escape or numbing",        r:"What feels too hard to face right now? You don't have to fix it — just write its name on paper. Naming the thing makes it smaller."},
+  {id:"shopping", l:"Shopping or browsing",  e:"🛍", need:"Novelty or control",       r:"Add it to a list. Give it exactly 48 hours. The dopamine from buying lasts minutes. The 48-hour rule eliminates most of these."},
+];
+const INSIGHTS = [
+  {a:"Dr. Russell Barkley", c:"#0071E3", q:"ADHD is not a problem of knowing what to do. It is a problem of doing what you know.", ctx:"This is why information alone never fixes ADHD. Your brain knows what to do. The gap is in doing it at the exact moment it's needed. You don't need more knowledge — you need external systems at the point of performance."},
+  {a:"Dr. Russell Barkley", c:"#0071E3", q:"Everything is either NOW or NOT NOW. The ADHD brain is time-blind.",                  ctx:"Future-you doesn't feel real. That's why deadlines only activate you at the last second. The fix is to manufacture urgency before the crisis arrives — through timers, visible clocks, and commitments that create accountability now."},
+  {a:"Dr. Russell Barkley", c:"#0071E3", q:"Exercise is the single most powerful tool you have for your ADHD brain. Treat it like medication.", ctx:"20 to 30 minutes of cardio elevates dopamine, norepinephrine, and serotonin in a way that closely mirrors stimulant medication. It is not optional. It is not self-care. It is the most evidence-backed intervention available to you, every single day."},
+  {a:"Dr. Russell Barkley", c:"#0071E3", q:"You cannot use your ADHD brain to manage your ADHD brain. You need external scaffolding.", ctx:"Mental notes fail. Intentions evaporate. Memory leaks constantly. The solution is radical externalization — nothing important lives in your head. Everything lives in your environment, written down, made visible, made tangible."},
+  {a:"Dr. Gabor Maté",      c:"#FF9500", q:"The ADHD brain is not diseased. It is a brain that adapted to protect itself.",          ctx:"ADHD often emerges as an adaptation — a mind that learned to scatter its attention to avoid being fully present in an environment that felt unsafe or overwhelming. Understanding this is not an excuse. It's a beginning. It replaces self-blame with something more useful: curiosity."},
+  {a:"Dr. Gabor Maté",      c:"#FF9500", q:"Behind every compulsive behavior is pain. Dopamine-seeking is self-medication, not weakness.", ctx:"When you reach for your phone or your food or your screen, ask: what pain am I trying to soothe? What need is unmet right now? This isn't a character flaw you were born with. It was a coping strategy. And coping strategies can be updated."},
+  {a:"Dr. Gabor Maté",      c:"#FF9500", q:"Shame is the most destructive force for the ADHD brain. Self-compassion is neurological medicine.", ctx:"Shame activates the brain's pain circuitry and shuts down the prefrontal cortex — exactly the region ADHD already struggles with. Every moment of self-compassion instead of self-criticism literally re-opens the brain. This is physiology, not sentiment."},
+  {a:"Dr. Gabor Maté",      c:"#FF9500", q:"You are not too much. You are not broken. Your gifts haven't found the right container yet.", ctx:"The intensity, the curiosity, the emotional depth — these are not defects waiting to be corrected. They are your nature, looking for an environment worthy of them. Your work is not to become someone else. It is to build the right conditions for who you already are."},
+  {a:"Dr. Ned Hallowell",   c:"#34C759", q:"ADHD is a Ferrari engine with bicycle brakes. The power is extraordinary — learn to drive it.", ctx:"The hyperfocus, the creativity, the intensity — this is the engine. The structures, routines, and systems you build are the brakes. You don't need a smaller engine. You need brakes that match it — and someone to show you the track."},
+  {a:"Dr. Ned Hallowell",   c:"#34C759", q:"Connection is medicine. Never underestimate the power of being truly understood.",             ctx:"Body doubling works. Accountability partners work. Therapy works. Not because ADHD is a social disorder — but because the human nervous system regulates itself through connection with other nervous systems. You were never meant to manage this alone."},
+  {a:"Dr. William Dodson",  c:"#AF52DE", q:"Rejection Sensitive Dysphoria affects 99% of people with ADHD. The pain is neurological, not weakness.", ctx:"When criticism or rejection hits you like a physical blow — that's RSD. Your nervous system fires in a way that most people's simply doesn't. This is not you being too sensitive. It is a measurable neurological difference. Naming it as RSD changes everything — it gives you a map."},
+];
+const JOURNAL_PROMPTS = [
+  "What made today harder than it needed to be? What could change?",
+  "What are you avoiding right now? Say it honestly — no judgment.",
+  "When did you feel most like yourself today? What were you doing?",
+  "What would you tell a close friend with ADHD who had your exact day?",
+  "What did your brain do well today, even if it felt small?",
+  "What triggered your hardest moment? Can you trace it back to a need?",
+  "If tomorrow could be 10% better than today, what is that one change?",
+  "Where did you feel shame today? Was it deserved — or was it ADHD talking?",
+];
+const UNDERSTAND = [
+  {t:"Why your brain seeks dopamine",     c:"#FF9500", i:"⚡", b:"Maté: ADHD involves dysregulated dopamine signaling. When you doom-scroll or snack compulsively, you are self-medicating a neurological deficit — not failing a test of character. Understanding this replaces shame with agency. You can redirect the need instead of fighting it."},
+  {t:"Why you can't just start",          c:"#0071E3", i:"🧱", b:"Barkley: Task initiation requires the prefrontal cortex to manufacture either interest or urgency — and the ADHD brain doesn't do this automatically. This is why you need external triggers at the exact moment of starting: a timer, a person, a commitment, a first step written down."},
+  {t:"Why you forget everything",         c:"#34C759", i:"🌫", b:"Barkley: Working memory in ADHD functions like a whiteboard that gets erased every few minutes. This is neurological architecture, not a character flaw. The fix is radical externalization — nothing important should live in your head. Everything should live in your environment."},
+  {t:"Why shame makes it worse",          c:"#AF52DE", i:"💙", b:"Maté: Shame activates the brain's pain circuitry and shuts down the prefrontal cortex — the exact region that ADHD already taxes. Self-criticism does not motivate the ADHD brain. It paralyzes it. Self-compassion is not indulgence. It is physiologically the better strategy."},
+  {t:"Why exercise is non-negotiable",    c:"#FF3B30", i:"🏃", b:"Barkley and Ratey: 20 to 30 minutes of aerobic exercise produces neurochemical effects that closely mirror those of stimulant medication — elevating dopamine, norepinephrine, and serotonin simultaneously. It also builds the prefrontal cortex over time. This is not a wellness suggestion. It is evidence-based medicine."},
+  {t:"Why hyperfocus is your superpower", c:"#FF9500", i:"🔥", b:"Hallowell: The ADHD brain is capable of extraordinary, sustained, effortless focus — when the task is intrinsically compelling. This state is real, it is powerful, and it is your greatest asset. Your work is to find the conditions that reliably produce it, then build structures around it."},
+];
+
+/* ── STATE ────────────────────────────────────────────────── */
+const KEY = "focal_v4";
+let S = { habitData:{}, checkins:{}, oneFocus:{}, journal:{}, insightIdx:0, totalWins:0, timerMode:"sprint", bodyDouble:false };
+function load(){ try{ const d=localStorage.getItem(KEY); if(d) S={...S,...JSON.parse(d)}; }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+load();
+
+const TODAY = new Date().toISOString().slice(0,10);
+const WD = ["S","M","T","W","T","F","S"];
+function weekDates(){ const t=new Date(),d=t.getDay(); return Array.from({length:7},(_,i)=>{ const x=new Date(t); x.setDate(t.getDate()-d+i); return x.toISOString().slice(0,10); }); }
+function td(){ return S.habitData[TODAY]||{}; }
+function ci(){ return S.checkins[TODAY]||{}; }
+function getStreak(id){ let s=0,d=new Date(); while(s<400){ const k=d.toISOString().slice(0,10); if((S.habitData[k]||{})[id]){s++;d.setDate(d.getDate()-1);}else break; } return s; }
+
+let cur="hq";
+function go(s){ cur=s; document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.s===s)); render(); }
+
+/* ── HABITS ───────────────────────────────────────────────── */
+function toggleHabit(id){
+  const was=!!(td()[id]);
+  S.habitData[TODAY]={...td(),[id]:!was};
+  if(!was) S.totalWins=(S.totalWins||0)+1;
+  save();
+  const row=document.querySelector(`[data-hid="${id}"]`);
+  if(row){
+    const done=S.habitData[TODAY][id];
+    row.classList.toggle('done',done);
+    const cw=row.querySelector('.check-wrap');
+    if(cw){ cw.className=`check-wrap${done?" done":" pop"}`; cw.textContent=done?"✓":HABITS.find(h=>h.id===id).emoji; if(!done){setTimeout(()=>cw.classList.remove('pop'),500);} }
+    const lp=row.querySelector('.label-primary');
+    const ls=row.querySelector('.label-secondary');
+    if(lp) lp.className='label-primary'+(done?' done-label':'');
+    updateProgress();
+  }
+}
+function updateProgress(){
+  const done=HABITS.filter(h=>td()[h.id]).length, total=HABITS.length, pct=done/total;
+  const C=2*Math.PI*22;
+  const rf=document.getElementById('ring-prog');
+  const rl=document.getElementById('ring-label');
+  if(rf){ rf.setAttribute('stroke-dashoffset',C*(1-pct)); rf.setAttribute('stroke',pct===1?'#34C759':'#0071E3'); }
+  if(rl) rl.textContent=`${done}/${total}`;
+}
+
+/* ── TIMER ────────────────────────────────────────────────── */
+const TMODES={micro:{l:"Micro",m:10},sprint:{l:"Sprint",m:25},turbo:{l:"Turbo",m:50}};
+let tPhase="idle",tLeft=null,tTotal=0,tInt=null;
+function startTimer(){ const m=TMODES[S.timerMode].m; tTotal=m*60; tLeft=tTotal; tPhase="working"; clearInterval(tInt); tInt=setInterval(()=>{ tLeft--; if(tLeft<=0){clearInterval(tInt);tPhase="break";} renderTimer(); },1000); renderTimer(); }
+function pauseTimer(){ clearInterval(tInt); tPhase="paused"; renderTimer(); }
+function resumeTimer(){ tPhase="working"; tInt=setInterval(()=>{ tLeft--; if(tLeft<=0){clearInterval(tInt);tPhase="break";} renderTimer(); },1000); renderTimer(); }
+function resetTimer(){ clearInterval(tInt); tLeft=null; tPhase="idle"; renderTimer(); }
+function renderTimer(){
+  const el=document.getElementById('timer-display'); if(!el) return;
+  const left=tLeft??tTotal||TMODES[S.timerMode].m*60;
+  const pct=tTotal>0?(tTotal-left)/tTotal:0;
+  const C=2*Math.PI*88;
+  const m=Math.floor(left/60),s=left%60;
+  const stroke=tPhase==="break"?"#34C759":tPhase==="working"?"#0071E3":"#D1D1D6";
+  const phase=tPhase==="idle"?"Ready":tPhase==="working"?"Working":tPhase==="paused"?"Paused":"Break";
+  el.innerHTML=`
+    <div class="timer-wrap" style="width:220px;height:220px;">
+      <svg class="timer-svg" width="220" height="220" viewBox="0 0 220 220">
+        <circle class="t-bg" cx="110" cy="110" r="88"/>
+        <circle class="t-fill" cx="110" cy="110" r="88" stroke="${stroke}"
+          stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-time">${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}</div>
+        <div class="timer-phase">${phase}</div>
+      </div>
+    </div>`;
+  const ctrl=document.getElementById('timer-ctrl'); if(!ctrl) return;
+  if(tPhase==="idle")
+    ctrl.innerHTML=`<button class="btn btn-primary" onclick="startTimer()">Begin</button>`;
+  else if(tPhase==="working")
+    ctrl.innerHTML=`<div style="display:flex;gap:10px;"><button class="btn btn-ghost btn-inline" onclick="pauseTimer()">Pause</button><button class="btn btn-ghost btn-inline" onclick="resetTimer()">Reset</button><button class="btn btn-ghost btn-inline" style="color:var(--red);" onclick="showStuck()">Stuck?</button></div>`;
+  else if(tPhase==="paused")
+    ctrl.innerHTML=`<div style="display:flex;gap:10px;"><button class="btn btn-primary btn-inline" onclick="resumeTimer()">Resume</button><button class="btn btn-ghost btn-inline" onclick="resetTimer()">Reset</button></div>`;
+  else
+    ctrl.innerHTML=`<div class="card card-solo" style="margin-bottom:16px;background:#F0FAF2;"><div style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:#34C759;text-transform:uppercase;margin-bottom:8px;">Break — move your body</div><div style="font-size:15px;font-weight:500;color:var(--ink2);">Step outside for 60 seconds 🌿</div><div style="font-size:12px;color:var(--ink4);margin-top:4px;">Movement restores dopamine. Barkley calls this essential, not optional.</div></div><button class="btn btn-secondary" onclick="resetTimer()">Start Next Session</button>`;
+}
+
+/* ── BREATHING ────────────────────────────────────────────── */
+let bPhase="idle",bSec=0,bCount=0,bInt=null;
+function startBreath(){ bPhase="inhale";bSec=0;bCount=0; clearInterval(bInt); bInt=setInterval(()=>{ bSec++; if(bPhase==="inhale"&&bSec>=4){bPhase="hold";bSec=0;} else if(bPhase==="hold"&&bSec>=4){bPhase="exhale";bSec=0;} else if(bPhase==="exhale"&&bSec>=6){bPhase="inhale";bSec=0;bCount++;} renderBreath(); },1000); renderBreath(); }
+function stopBreath(){ clearInterval(bInt); bPhase="idle"; renderBreath(); }
+function renderBreath(){
+  const el=document.getElementById('breath-display'); if(!el) return;
+  const labels={idle:"Tap to begin",inhale:"Breathe in",hold:"Hold",exhale:"Breathe out"};
+  const icons={idle:"🫁",inhale:"⬆️",hold:"⏸",exhale:"⬇️"};
+  el.innerHTML=`<div class="breath-circle ${bPhase==="idle"?"":bPhase}" onclick="${bPhase==="idle"?"startBreath()":"stopBreath()}">
+    <div class="breath-icon">${icons[bPhase]}</div>
+    <div class="breath-label">${labels[bPhase]}</div>
+    ${bCount>0?`<div class="breath-cycle">Cycle ${bCount}</div>`:""}
+  </div>`;
+  const el2=el.querySelector('.breath-circle'); if(el2&&bPhase==="idle") el2.setAttribute('onclick','startBreath()');
+}
+
+/* ── MODALS ───────────────────────────────────────────────── */
+function showModal(html){
+  closeModal();
+  const el=document.createElement('div');
+  el.className='modal-overlay';
+  el.id='modal-root';
+  el.innerHTML=`<div class="modal-sheet"><div class="modal-handle"></div>${html}</div>`;
+  el.addEventListener('click',e=>{ if(e.target===el) closeModal(); });
+  document.getElementById('app').appendChild(el);
+}
+function closeModal(){ document.getElementById('modal-root')?.remove(); }
+
+function showRSD(){
+  showModal(`
+    <div class="modal-title">Rejection Sensitive Dysphoria</div>
+    <div class="modal-sub">Dr. William Dodson · affects 99% of people with ADHD</div>
+    <div style="background:rgba(175,82,222,0.07);border-radius:14px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:14px;color:var(--ink2);line-height:1.7;">What you're feeling right now is <strong>neurological</strong>, not weakness. Your nervous system fires in a way that most people's simply doesn't. Naming it as RSD doesn't excuse it — it gives you a map of what's happening, which is the first step to responding instead of reacting.</div>
+    </div>
+    ${["Say out loud: 'This is RSD. This is my nervous system, not reality.'","Cold water on your wrists or face. Return to your body.","Ask yourself: will this matter in 24 hours? In a week?","Make no decisions, send no messages, take no action for one hour.","Your sensitivity is not a flaw. It is the same trait that makes you deeply perceptive."].map((s,i)=>`<div class="proto-step"><div class="proto-num">${i+1}</div><div class="proto-text">${s}</div></div>`).join("")}
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="closeModal()">I see it. I name it. I'm okay.</button>
+  `);
+}
+function showOverwhelm(){
+  showModal(`
+    <div class="modal-title">Overwhelm Protocol</div>
+    <div class="modal-sub">Barkley: "Simplify immediately. Complexity is the enemy."</div>
+    ${["Stop. You do not need to solve everything right now. That is not the goal.","Take three slow breaths. Breathe out longer than you breathe in.","Name one thing — just one — that genuinely matters today.","Everything else: write it down and tell it 'not now.' It will wait.","Do that one thing for exactly five minutes. Only five minutes.","If you're still spiraling: physically move to a different room."].map((s,i)=>`<div class="proto-step"><div class="proto-num" style="background:rgba(255,59,48,0.08);color:var(--red);">${i+1}</div><div class="proto-text">${s}</div></div>`).join("")}
+    <button class="btn btn-danger" style="margin-top:8px;" onclick="closeModal()">One thing. Five minutes. Go.</button>
+  `);
+}
+function showStuck(){
+  showModal(`
+    <div class="modal-title">You're stuck.</div>
+    <div class="modal-sub">This is normal. Here is what actually works.</div>
+    ${["Change your physical position — stand, move to the floor, move rooms entirely.","Read only the first sentence of the task out loud. That's it.","Tell yourself: I only need to work for two minutes.","Is this the wrong task for your current energy? Consider switching.","Write down exactly what is blocking you. Naming it breaks the loop."].map((s,i)=>`<div class="proto-step"><div class="proto-num" style="background:rgba(0,113,227,0.08);color:var(--blue);">${i+1}</div><div class="proto-text">${s}</div></div>`).join("")}
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="closeModal()">Back to work</button>
+  `);
+}
+let selUrge=null;
+function showUrgeMenu(){
+  showModal(`
+    <div class="modal-title">Before you act on that urge.</div>
+    <div class="modal-sub">Identify it. Then meet the real need underneath.</div>
+    ${URGES.map(u=>`<button class="urge-btn" onclick="showUrgeDetail('${u.id}')">
+      <span style="font-size:28px;">${u.e}</span>
+      <div><div style="font-size:15px;font-weight:500;color:var(--ink);">${u.l}</div><div style="font-size:12px;color:var(--ink4);margin-top:2px;">Need: ${u.need}</div></div>
+      <span style="margin-left:auto;font-size:14px;color:var(--ink5);">›</span>
+    </button>`).join("")}
+  `);
+}
+function showUrgeDetail(id){
+  const u=URGES.find(x=>x.id===id);
+  showModal(`
+    <div class="modal-title">${u.e} ${u.l}</div>
+    <div class="modal-sub">Need underneath this: ${u.need}</div>
+    <div class="redirect-box">
+      <div style="font-size:15px;color:var(--ink2);line-height:1.75;letter-spacing:-0.1px;">${u.r}</div>
+    </div>
+    <button class="btn btn-secondary" onclick="closeModal()">✓ Urge redirected</button>
+    <button class="btn btn-ghost" style="margin-top:10px;" onclick="showUrgeMenu()">← Back</button>
+  `);
+}
+
+/* ── SCREENS ──────────────────────────────────────────────── */
+function renderHQ(){
+  const wd=weekDates();
+  const done=HABITS.filter(h=>td()[h.id]).length, total=HABITS.length, pct=done/total;
+  const C=2*Math.PI*22;
+  const h=new Date().getHours();
+  const greeting=h<5?"Still up?":(h<12?"Good morning.":(h<17?"Good afternoon.":(h<21?"Good evening.":"Good night.")));
+  const dayPct=Math.min(100,Math.round(((h*60+new Date().getMinutes())/(24*60))*100));
+  const em=EMOTIONS.find(e=>e.id===ci().emotion);
+  const savedFocus=S.oneFocus[TODAY]||"";
+
+  document.getElementById('screen').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="page-title">${greeting}</div>
+          <div class="page-sub">${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
+          ${em?`<div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><span style="font-size:14px;">${em.e}</span><span style="font-size:13px;color:var(--ink4);">Feeling ${em.l.toLowerCase()}</span></div>`:""}
+        </div>
+        <div style="position:relative;width:52px;height:52px;flex-shrink:0;margin-top:4px;">
+          <svg class="ring-svg" width="52" height="52" viewBox="0 0 52 52">
+            <circle class="ring-bg" cx="26" cy="26" r="22"/>
+            <circle id="ring-prog" class="ring-prog" cx="26" cy="26" r="22"
+              stroke="${pct===1?"#34C759":"#0071E3"}"
+              stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+            <span id="ring-label" style="font-size:11px;font-weight:600;color:${pct===1?"#34C759":"var(--ink2)"};">${done}/${total}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day bar -->
+      <div style="margin-top:20px;">
+        <div class="prog-track">
+          <div class="prog-fill" style="width:${dayPct}%;background:linear-gradient(90deg,#0071E3,#34C759);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;color:var(--ink5);">Midnight</span>
+          <span style="font-size:10px;color:var(--ink4);font-weight:500;">${new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>
+          <span style="font-size:10px;color:var(--ink5);">11 PM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- One thing -->
+    <div class="section">
+      <div class="section-title">One thing</div>
+      <div class="input-wrap">
+        <input class="input-field" placeholder="What single task makes today a win?" value="${savedFocus.replace(/"/g,'&quot;')}"
+          oninput="S.oneFocus['${TODAY}']=this.value;save();" style="font-size:17px;font-weight:500;"/>
+        ${savedFocus?`<div style="font-size:12px;color:var(--ink4);margin-top:6px;">Barkley — one priority. Everything else is noise until this is done.</div>`:""}
+      </div>
+    </div>
+
+    <!-- Week -->
+    <div class="section">
+      <div class="section-title">This week</div>
+      <div class="card card-solo">
+        <div class="week-strip">
+          ${wd.map(date=>{
+            const cnt=HABITS.filter(h=>(S.habitData[date]||{})[h.id]).length;
+            const isT=date===TODAY;
+            const cls=isT?"week-dot today":(cnt>0?"week-dot has-data":"week-dot");
+            return `<div class="week-col">
+              <div class="week-day-label">${WD[new Date(date+"T12:00").getDay()]}</div>
+              <div class="${cls}">${cnt>0?cnt:"·"}</div>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>
+
+    <!-- Dopamine -->
+    <div class="section">
+      <button onclick="showUrgeMenu()" style="width:100%;padding:16px;background:var(--card);border-radius:var(--r-card);border:none;cursor:pointer;font-family:inherit;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;text-align:left;" class="pressable">
+        <span style="font-size:26px;">⚡</span>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-0.2px;">Feeling an urge?</div>
+          <div style="font-size:12px;color:var(--ink4);margin-top:2px;">Tap here before you act on it.</div>
+        </div>
+        <span style="margin-left:auto;font-size:16px;color:var(--ink5);">›</span>
+      </button>
+    </div>
+
+    <!-- Habits preview -->
+    <div class="section">
+      <div class="section-title">Quick habits</div>
+      <div class="card">
+        ${HABITS.slice(0,4).map((h,i,arr)=>{
+          const done2=!!(td()[h.id]);
+          const col=CAT_C[h.cat]||"#0071E3";
+          return `<div class="card-row${done2?" done":""}" data-hid="${h.id}" onclick="toggleHabit('${h.id}')">
+            <div class="check-wrap${done2?" done":""}" onclick="event.stopPropagation();toggleHabit('${h.id}');">${done2?"✓":h.emoji}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="label-primary${done2?" done-label":""}">${h.label}</div>
+              <div class="label-secondary">${h.tiny}</div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+      <div style="font-size:12px;color:var(--ink4);text-align:center;margin-top:10px;">+ ${HABITS.length-4} more habits in the Habits tab</div>
+    </div>
+
+    <!-- Barkley -->
+    <div class="section">
+      <div class="quote-card">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;">Dr. Russell Barkley</div>
+        <div class="quote-text">"Make the right behavior the easiest behavior. Design your environment — don't rely on willpower."</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+let regTab="checkin";
+function renderRegulate(){
+  document.getElementById('screen').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Regulate</div>
+      <div class="page-sub">Maté — "Shame shuts the brain down. Compassion opens it."</div>
+    </div>
+
+    <div class="section">
+      <div class="emergency-grid">
+        <button class="emergency-btn" style="background:#F9F0FF;" onclick="showRSD()">
+          <div style="font-size:24px;margin-bottom:8px;">💜</div>
+          <div style="font-size:13px;font-weight:700;color:var(--purple);">RSD Emergency</div>
+          <div style="font-size:11px;color:var(--ink4);margin-top:3px;">Rejection hit hard</div>
+        </button>
+        <button class="emergency-btn" style="background:#FFF0EF;" onclick="showOverwhelm()">
+          <div style="font-size:24px;margin-bottom:8px;">🌀</div>
+          <div style="font-size:13px;font-weight:700;color:var(--red);">Overwhelm SOS</div>
+          <div style="font-size:11px;color:var(--ink4);margin-top:3px;">Brain is spiraling</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="pill-row">
+        <button class="pill ${regTab==="checkin"?"active":""}" onclick="regTab='checkin';reRegBody();">Check-In</button>
+        <button class="pill ${regTab==="urge"?"active":""}" onclick="regTab='urge';reRegBody();">Urge Interceptor</button>
+        <button class="pill ${regTab==="breathe"?"active":""}" onclick="regTab='breathe';reRegBody();bPhase='idle';">Breathe</button>
+      </div>
+    </div>
+
+    <div class="section" id="reg-body"></div>
+  </div>`;
+  reRegBody();
+}
+function reRegBody(){
+  const el=document.getElementById('reg-body'); if(!el) return;
+  if(regTab==="checkin") el.innerHTML=renderCheckin();
+  else if(regTab==="urge") el.innerHTML=renderUrgeInline();
+  else { el.innerHTML=renderBreathe(); renderBreath(); }
+  // update pill styles
+  document.querySelectorAll('.pill').forEach(p=>{
+    const map={"Check-In":"checkin","Urge Interceptor":"urge","Breathe":"breathe"};
+    p.classList.toggle('active',map[p.textContent]===regTab);
+  });
+}
+function renderCheckin(){
+  const em=EMOTIONS.find(e=>e.id===ci().emotion);
+  return `
+    <div class="section-title" style="padding-left:4px;">How are you right now?</div>
+    <div class="em-grid" style="margin-bottom:16px;">
+      ${EMOTIONS.map(e=>`<button class="em-btn ${ci().emotion===e.id?"sel":""}" onclick="S.checkins['${TODAY}']={...S.checkins['${TODAY}'],emotion:'${e.id}'};save();reRegBody();">
+        <span class="em-emoji">${e.e}</span>
+        <span class="em-label">${e.l}</span>
+      </button>`).join("")}
+    </div>
+    ${em?`<div class="card card-solo" style="margin-bottom:16px;background:var(--blue-lt);"><div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;">Right now</div><div style="font-size:15px;color:var(--ink2);line-height:1.6;letter-spacing:-0.1px;">${em.tip}</div></div>`:""}
+    <div class="section-title" style="padding-left:4px;margin-top:20px;">Maté body scan</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      ${["Head","Chest","Stomach","Throat","Shoulders","Whole body"].map(area=>{
+        const sel=(ci().bodyArea||"")===area;
+        return `<button onclick="S.checkins['${TODAY}']={...S.checkins['${TODAY}'],bodyArea:'${area}'};save();reRegBody();" style="background:${sel?"var(--blue-lt)":"var(--card)"};border:2px solid ${sel?"var(--blue)":"transparent"};border-radius:12px;padding:10px 8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:${sel?600:400};color:${sel?"var(--blue)":"var(--ink3)"};box-shadow:0 1px 3px rgba(0,0,0,0.04);transition:all 0.15s;">${area}</button>`;
+      }).join("")}
+    </div>
+    ${ci().bodyArea?`<div style="font-size:12px;color:var(--ink4);margin-top:10px;font-style:italic;padding-left:4px;">Maté — "The body always tells the truth. Emotions live there first."</div>`:""}`;
+}
+function renderUrgeInline(){
+  return `
+    <div class="section-title" style="padding-left:4px;margin-bottom:12px;">What are you reaching for?</div>
+    <div style="font-size:13px;color:var(--ink4);margin-bottom:16px;padding-left:4px;">Maté — "Name the urge. Name the need behind it. That is the whole work."</div>
+    ${URGES.map(u=>`<button class="urge-btn" onclick="showUrgeDetail('${u.id}')">
+      <span style="font-size:26px;">${u.e}</span>
+      <div><div style="font-size:14px;font-weight:500;color:var(--ink);">${u.l}</div><div style="font-size:11px;color:var(--ink4);margin-top:2px;">Need: ${u.need}</div></div>
+      <span style="margin-left:auto;color:var(--ink5);">›</span>
+    </button>`).join("")}`;
+}
+function renderBreathe(){
+  return `
+    <div class="section-title" style="padding-left:4px;margin-bottom:20px;">4 · 4 · 6 Breathing</div>
+    <div id="breath-display"></div>
+    <div class="card card-solo">
+      <div style="font-size:14px;color:var(--ink3);line-height:1.7;text-align:center;">Inhale 4 counts &nbsp;·&nbsp; Hold 4 counts &nbsp;·&nbsp; Exhale 6 counts<br/><span style="font-size:12px;color:var(--ink4);">The longer exhale activates your parasympathetic system.</span></div>
+    </div>`;
+}
+
+let habitsTab="today", habitsAnchor="morning";
+function renderHabits(){
+  const done=HABITS.filter(h=>td()[h.id]).length;
+  document.getElementById('screen').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+          <div class="page-title">Habits</div>
+          <div class="page-sub">Anchor-based. Never clock-based.</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:32px;font-weight:200;letter-spacing:-2px;color:${done===HABITS.length?"var(--green)":"var(--ink)"};">${done}<span style="font-size:16px;font-weight:400;color:var(--ink4);">/${HABITS.length}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="pill-row">
+        <button class="pill ${habitsTab==="today"?"active":""}" onclick="habitsTab='today';reHabitsBody();">Today</button>
+        <button class="pill ${habitsTab==="week"?"active":""}" onclick="habitsTab='week';reHabitsBody();">This Week</button>
+      </div>
+    </div>
+    <div id="habits-body" class="section"></div>
+  </div>`;
+  reHabitsBody();
+}
+function reHabitsBody(){
+  const el=document.getElementById('habits-body'); if(!el) return;
+  if(habitsTab==="week"){ el.innerHTML=renderHabitsWeek(); return; }
+  const ah=HABITS.filter(h=>h.anchor===habitsAnchor);
+  const doneAll=ah.length>0&&ah.every(h=>td()[h.id]);
+  el.innerHTML=`
+    <div class="anchor-grid">
+      ${Object.entries(ANCHORS).map(([k,a])=>{
+        const cnt=HABITS.filter(h=>h.anchor===k&&td()[h.id]).length;
+        const tot=HABITS.filter(h=>h.anchor===k).length;
+        return `<button class="anchor-btn ${habitsAnchor===k?"active":""}" onclick="habitsAnchor='${k}';reHabitsBody();">
+          <div class="anchor-emoji">${a.emoji}</div>
+          <div class="anchor-label">${a.label}</div>
+          <div class="anchor-count">${cnt}/${tot}</div>
+        </button>`;
+      }).join("")}
+    </div>
+    <div style="font-size:12px;color:var(--ink4);margin-bottom:14px;padding-left:2px;font-style:italic;">${ANCHORS[habitsAnchor].desc}</div>
+    <div class="card">
+      ${ah.map((h,i,arr)=>{
+        const done2=!!(td()[h.id]), col=CAT_C[h.cat]||"#0071E3", streak=getStreak(h.id);
+        return `<div class="card-row ${done2?"done":""}" data-hid="${h.id}" onclick="toggleHabit('${h.id}')">
+          <div class="check-wrap ${done2?"done":""}" onclick="event.stopPropagation();toggleHabit('${h.id}');">${done2?"✓":h.emoji}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="label-primary ${done2?"done-label":""}">${h.label}</div>
+            <div class="label-secondary">${h.tiny}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+            ${streak>1?`<div class="streak-badge">🔥 ${streak}</div>`:`<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:${col};">${h.cat}</div>`}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+    ${doneAll?`<div class="card card-solo" style="margin-top:12px;background:#F0FAF2;text-align:center;"><div style="font-size:14px;font-weight:600;color:var(--green);">All ${habitsAnchor} habits complete.</div><div style="font-size:12px;color:var(--ink4);margin-top:4px;">Say "yes" out loud. That dopamine hit is real. (Barkley)</div></div>`:""}
+    <div class="quote-card" style="margin-top:16px;">
+      <div class="quote-text"><strong style="font-weight:600;font-style:normal;color:var(--ink3);">Never miss twice.</strong> One miss is an accident. Two misses is a new habit — the habit of not doing it.</div>
+    </div>`;
+  document.querySelectorAll('.pill').forEach(p=>{ p.classList.toggle('active',p.textContent===( habitsTab==="today"?"Today":"This Week")); });
+}
+function renderHabitsWeek(){
+  const wd=weekDates();
+  return HABITS.map(h=>{
+    const col=CAT_C[h.cat]||"#0071E3", streak=getStreak(h.id), done7=wd.filter(d=>(S.habitData[d]||{})[h.id]).length;
+    return `<div class="card" style="margin-bottom:10px;">
+      <div class="card-row" style="cursor:default;">
+        <span style="font-size:22px;">${h.emoji}</span>
+        <div style="flex:1;"><div class="label-primary">${h.label}</div><div class="label-secondary">${h.cat} · ${h.anchor}</div></div>
+        <div style="font-size:13px;color:var(--ink4);font-weight:500;">${done7}/7</div>
+      </div>
+      <div style="padding:0 16px 14px;">
+        <div class="week-bar-row">
+          ${wd.map(date=>`<div class="week-bar ${(S.habitData[date]||{})[h.id]?"done":""}"></div>`).join("")}
+        </div>
+        ${streak>1?`<div style="margin-top:8px;font-size:12px;color:var(--orange);font-weight:500;">🔥 ${streak}-day streak</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+let wisdomTab="insight", openU=-1;
+const jPromptIdx=Math.floor(Math.random()*JOURNAL_PROMPTS.length);
+function renderWisdom(){
+  document.getElementById('screen').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Wisdom</div>
+      <div class="page-sub">Know your brain. Change your story.</div>
+    </div>
+
+    <div class="section">
+      <div class="wins-card">
+        <div style="font-size:36px;">🏆</div>
+        <div><div class="wins-number">${S.totalWins||0}</div><div class="wins-label">habit completions<br/>your brain is rewiring</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="pill-row">
+        <button class="pill ${wisdomTab==="insight"?"active":""}" onclick="wisdomTab='insight';reWisdomBody();">Insights</button>
+        <button class="pill ${wisdomTab==="journal"?"active":""}" onclick="wisdomTab='journal';reWisdomBody();">Journal</button>
+        <button class="pill ${wisdomTab==="understand"?"active":""}" onclick="wisdomTab='understand';reWisdomBody();">Understand</button>
+      </div>
+    </div>
+
+    <div id="wisdom-body" class="section"></div>
+  </div>`;
+  reWisdomBody();
+}
+function reWisdomBody(){
+  const el=document.getElementById('wisdom-body'); if(!el) return;
+  if(wisdomTab==="insight") el.innerHTML=renderInsights();
+  else if(wisdomTab==="journal") el.innerHTML=renderJournal();
+  else el.innerHTML=renderUnderstand();
+  document.querySelectorAll('.pill').forEach(p=>{ const m={"Insights":"insight","Journal":"journal","Understand":"understand"}; p.classList.toggle('active',m[p.textContent]===wisdomTab); });
+}
+function renderInsights(){
+  const idx=S.insightIdx%INSIGHTS.length, ins=INSIGHTS[idx];
+  return `
+    <div class="insight-wrap">
+      <div class="insight-author" style="color:${ins.c};">${ins.a}</div>
+      <div class="insight-quote">"${ins.q}"</div>
+      <div class="insight-divider"></div>
+      <div class="insight-context">${ins.ctx}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;">
+        <button class="btn btn-ghost btn-inline" onclick="S.insightIdx=(S.insightIdx-1+${INSIGHTS.length})%${INSIGHTS.length};save();reWisdomBody();">← Previous</button>
+        <span style="font-size:12px;color:var(--ink4);">${idx+1} of ${INSIGHTS.length}</span>
+        <button class="btn btn-primary btn-inline" onclick="S.insightIdx=(S.insightIdx+1)%${INSIGHTS.length};save();reWisdomBody();">Next →</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;">
+      ${[{k:"barkley",l:"Barkley",c:"#0071E3"},{k:"maté",l:"Maté",c:"#FF9500"},{k:"hallowell",l:"Hallowell",c:"#34C759"},{k:"dodson",l:"Dodson",c:"#AF52DE"}].map(a=>{
+        const fi=INSIGHTS.findIndex(i=>i.a.toLowerCase().includes(a.k==="maté"?"gabor":a.k));
+        return `<button onclick="S.insightIdx=${fi>=0?fi:0};save();reWisdomBody();" style="padding:7px 16px;border-radius:100px;background:${a.c}12;border:1.5px solid ${a.c}30;color:${a.c};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-0.1px;">Dr. ${a.l}</button>`;
+      }).join("")}
+    </div>`;
+}
+function renderJournal(){
+  const saved=(S.journal||{})[TODAY]||"";
+  return `
+    <div class="card card-solo" style="margin-bottom:16px;background:var(--blue-lt);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;">Today's prompt</div>
+      <div style="font-size:15px;color:var(--ink2);line-height:1.6;font-style:italic;">"${JOURNAL_PROMPTS[jPromptIdx]}"</div>
+    </div>
+    <div class="card card-solo" style="margin-bottom:12px;">
+      <textarea id="jta" class="textarea-field" rows="8" placeholder="Write here. No format. No judgment. No rules.">${saved}</textarea>
+    </div>
+    <button class="btn btn-primary" id="save-btn" onclick="saveJournal()">Save</button>
+    <div style="font-size:12px;color:var(--ink4);text-align:center;margin-top:12px;font-style:italic;">Maté — "Writing gives the unconscious a voice."</div>`;
+}
+function saveJournal(){
+  const ta=document.getElementById('jta'); if(!ta) return;
+  S.journal=S.journal||{}; S.journal[TODAY]=ta.value; save();
+  const btn=document.getElementById('save-btn');
+  if(btn){ btn.textContent="Saved ✓"; btn.style.background="var(--green)"; setTimeout(()=>{ btn.textContent="Save"; btn.style.background=""; },2000); }
+}
+function renderUnderstand(){
+  return UNDERSTAND.map((card,i)=>`
+    <div class="understand-row">
+      <div class="understand-header" onclick="openU=openU===${i}?-1:${i};reWisdomBody();">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:22px;">${card.i}</span>
+          <div style="font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-0.2px;">${card.t}</div>
+        </div>
+        <span class="chevron ${openU===i?"open":""}">›</span>
+      </div>
+      <div class="understand-body ${openU===i?"open":""}">${card.b}</div>
+    </div>`).join("");
+}
+
+let focusTab="timer";
+function renderFocus(){
+  document.getElementById('screen').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Focus</div>
+      <div class="page-sub">Barkley — "Make time visible and tangible."</div>
+    </div>
+
+    <div class="section">
+      <div class="input-wrap">
+        <input class="input-field" id="task-input" placeholder="Name the task you're working on" value="${(S.oneFocus[TODAY]||"").replace(/"/g,'&quot;')}" oninput="S.oneFocus['${TODAY}']=this.value;save();" style="font-size:17px;font-weight:500;"/>
+      </div>
+    </div>
+
+    ${tPhase==="idle"?`
+    <div class="section">
+      <div class="section-title">Duration</div>
+      <div class="card">
+        ${Object.entries(TMODES).map(([k,m],i,arr)=>`<div class="card-row" style="cursor:pointer;justify-content:space-between;" onclick="S.timerMode='${k}';save();renderFocus();">
+          <div>
+            <div class="label-primary">${m.l}</div>
+            <div class="label-secondary">${k==="micro"?"For low energy days":k==="sprint"?"Classic focused session":"Deep work, flow state"}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:14px;color:var(--ink4);font-weight:500;">${m.m} min</span>
+            ${S.timerMode===k?`<div style="width:20px;height:20px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;"><span style="color:white;font-size:11px;">✓</span></div>`:`<div style="width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink5);"></div>`}
+          </div>
+        </div>`).join("")}
+      </div>
+    </div>`:""}
+
+    <div class="section" style="display:flex;flex-direction:column;align-items:center;">
+      <div id="timer-display"></div>
+      <div id="timer-ctrl" style="width:100%;margin-top:20px;max-width:280px;"></div>
+    </div>
+
+    <div class="section">
+      <div class="card">
+        <div class="card-row" style="justify-content:space-between;cursor:default;">
+          <div>
+            <div class="label-primary">Body Double Mode</div>
+            <div class="label-secondary">Working alongside others activates ADHD brains (Hallowell)</div>
+          </div>
+          <div class="toggle-track ${S.bodyDouble?"on":""}" onclick="S.bodyDouble=!S.bodyDouble;save();this.classList.toggle('on',S.bodyDouble);this.querySelector('.toggle-knob').style.left=S.bodyDouble?'22px':'2px';this.nextElementSibling&&this.nextElementSibling.remove();if(S.bodyDouble){const d=document.createElement('div');d.style.cssText='padding:12px 16px;background:#F0FAF2;font-size:13px;color:var(--green);border-top:0.5px solid rgba(0,0,0,0.05);';d.textContent='🟢 Someone is working alongside you. Stay focused.';this.closest('.card').appendChild(d);}">
+            <div class="toggle-knob" style="left:${S.bodyDouble?"22px":"2px"};"></div>
+          </div>
+        </div>
+        ${S.bodyDouble?`<div style="padding:12px 16px;background:#F0FAF2;font-size:13px;color:var(--green);border-top:0.5px solid rgba(0,0,0,0.05);">🟢 Someone is working alongside you. Stay focused.</div>`:""}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Can't start? Break it down.</div>
+      <div class="card">
+        ${[1,2,3].map(n=>`<div class="card-row" style="cursor:default;">
+          <div style="min-width:26px;height:26px;border-radius:50%;background:var(--sheet);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--ink4);flex-shrink:0;">${n}</div>
+          <input class="input-field" placeholder="Step ${n}..." style="font-size:14px;"/>
+        </div>`).join("")}
+      </div>
+      <div style="font-size:12px;color:var(--ink4);margin-top:8px;padding-left:4px;font-style:italic;">Barkley — "The ADHD brain can't initiate a big task. It can always start step one."</div>
+    </div>
+  </div>`;
+  renderTimer();
+}
+
+/* ── RENDER ───────────────────────────────────────────────── */
+function render(){
+  if(cur==="hq") renderHQ();
+  else if(cur==="focus"){ renderFocus(); }
+  else if(cur==="regulate") renderRegulate();
+  else if(cur==="habits") renderHabits();
+  else if(cur==="wisdom") renderWisdom();
+  document.getElementById('screen').scrollTop=0;
+  updateProgress();
+}
+render();
+</script>
+</body>
+</html>
